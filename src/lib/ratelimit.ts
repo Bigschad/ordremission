@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -43,11 +44,16 @@ export async function consommerRateLimit(
   const reinitialisationA = new Date(fenetreDebut.getTime() + options.fenetreSecondes * 1000);
 
   try {
+    /*
+     * L'identifiant et l'horodatage sont fournis par l'application plutôt que
+     * par `gen_random_uuid()` et `NOW()` : la requête reste ainsi valable sur
+     * PostgreSQL comme sur SQLite (mode démonstration et tests).
+     */
     const lignes = await prisma.$queryRaw<{ compteur: number }[]>`
       INSERT INTO "RateLimit" ("id", "cle", "fenetreDebut", "compteur", "updatedAt")
-      VALUES (gen_random_uuid()::text, ${options.cle}, ${fenetreDebut}, 1, NOW())
+      VALUES (${randomUUID()}, ${options.cle}, ${fenetreDebut}, 1, ${maintenant})
       ON CONFLICT ("cle", "fenetreDebut")
-      DO UPDATE SET "compteur" = "RateLimit"."compteur" + 1, "updatedAt" = NOW()
+      DO UPDATE SET "compteur" = "RateLimit"."compteur" + 1, "updatedAt" = ${maintenant}
       RETURNING "compteur"
     `;
 

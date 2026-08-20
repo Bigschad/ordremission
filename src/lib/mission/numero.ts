@@ -40,15 +40,21 @@ type PrismaExecutor = PrismaClient | Prisma.TransactionClient;
  *
  * `INSERT … ON CONFLICT DO UPDATE … RETURNING` est atomique côté Postgres :
  * la ligne du compteur est verrouillée pour la durée de la mise à jour, ce qui
- * équivaut à un `SELECT … FOR UPDATE` suivi d'un `UPDATE`, en une seule
+ * équivaut à un `SELECT … FOR UPDATE` suivi d'un `UPDATE`, en un seul
  * aller-retour réseau (précieux en serverless).
+ *
+ * L'horodatage est passé en paramètre plutôt qu'obtenu par `NOW()` : la
+ * requête reste ainsi valable aussi bien sur PostgreSQL que sur SQLite, ce
+ * dernier servant au mode démonstration et aux tests sans infrastructure.
  */
 export async function prochaineSequence(tx: PrismaExecutor, annee: number): Promise<number> {
+  const maintenant = new Date();
+
   const lignes = await tx.$queryRaw<{ sequence: number }[]>`
     INSERT INTO "Counter" ("annee", "sequence", "updatedAt")
-    VALUES (${annee}, 1, NOW())
+    VALUES (${annee}, 1, ${maintenant})
     ON CONFLICT ("annee")
-    DO UPDATE SET "sequence" = "Counter"."sequence" + 1, "updatedAt" = NOW()
+    DO UPDATE SET "sequence" = "Counter"."sequence" + 1, "updatedAt" = ${maintenant}
     RETURNING "sequence"
   `;
 

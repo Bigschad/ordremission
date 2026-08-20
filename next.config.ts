@@ -49,6 +49,29 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
+
+  /*
+   * En développement, la base SQLite et la boîte aux lettres de test vivent
+   * dans l'arborescence du projet. Sans cette exclusion, chaque écriture en
+   * base ou chaque e-mail déclencherait une recompilation, qui interromprait
+   * les requêtes en cours — y compris les Server Actions.
+   */
+  webpack(config: { watchOptions?: { ignored?: string[] } }) {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/.next/**',
+        '**/.mailbox/**',
+        '**/*.db',
+        '**/*.db-journal',
+        '**/*.db-wal',
+        '**/*.db-shm',
+      ],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;

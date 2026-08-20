@@ -9,7 +9,6 @@ const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
-  globalSetup: './e2e/global-setup.ts',
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
@@ -40,6 +39,13 @@ export default defineConfig({
   ],
 
   webServer: {
+    /*
+     * La base et le client Prisma sont préparés par `pnpm test:db`, appelé en
+     * amont de `playwright test` (voir package.json) : le client embarque son
+     * moteur et il est importé dès le chargement des fichiers de test. Le
+     * régénérer depuis Playwright créerait une course entre le processus de
+     * test et le serveur.
+     */
     command: `pnpm exec next dev -p ${PORT}`,
     url: BASE_URL + '/login',
     reuseExistingServer: !process.env.CI,

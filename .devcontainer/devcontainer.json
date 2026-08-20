@@ -1,0 +1,35 @@
+{
+  "name": "Ordres de mission — PORTEO GROUP",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+
+  // Installation des dépendances, base SQLite et jeu de démonstration.
+  // Aucun service externe n'est requis : ni Postgres, ni Resend.
+  "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "updateContentCommand": "pnpm demo:setup",
+  "postAttachCommand": {
+    "application": "pnpm dev"
+  },
+
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Ordres de mission",
+      "onAutoForward": "openPreview"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}

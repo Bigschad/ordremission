@@ -1,4 +1,5 @@
 import { type MissionStatus, type Prisma, Role } from '@prisma/client';
+import { contient } from '@/lib/db-dialecte';
 import { prisma } from '@/lib/prisma';
 import type { UtilisateurCourant } from '@/lib/session';
 
@@ -97,7 +98,7 @@ function whereRH(filtres: FiltresRH): Prisma.MissionOrderWhereInput {
 
   if (filtres.status) conditions.push({ status: filtres.status });
   if (filtres.demandeurId) conditions.push({ demandeurId: filtres.demandeurId });
-  if (filtres.lieu) conditions.push({ lieu: { contains: filtres.lieu, mode: 'insensitive' } });
+  if (filtres.lieu) conditions.push({ lieu: contient(filtres.lieu) });
 
   if (filtres.du) conditions.push({ dateDepart: { gte: filtres.du } });
   if (filtres.au) conditions.push({ dateDepart: { lte: filtres.au } });
@@ -107,12 +108,12 @@ function whereRH(filtres: FiltresRH): Prisma.MissionOrderWhereInput {
     if (terme.length > 0) {
       conditions.push({
         OR: [
-          { numero: { contains: terme, mode: 'insensitive' } },
-          { nom: { contains: terme, mode: 'insensitive' } },
-          { prenoms: { contains: terme, mode: 'insensitive' } },
-          { matricule: { contains: terme, mode: 'insensitive' } },
-          { objet: { contains: terme, mode: 'insensitive' } },
-          { lieu: { contains: terme, mode: 'insensitive' } },
+          { numero: contient(terme) },
+          { nom: contient(terme) },
+          { prenoms: contient(terme) },
+          { matricule: contient(terme) },
+          { objet: contient(terme) },
+          { lieu: contient(terme) },
         ],
       });
     }

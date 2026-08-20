@@ -6,6 +6,15 @@ import { PrismaClient, Role } from '@prisma/client';
  */
 export const prismaTest = new PrismaClient();
 
+/**
+ * Vrai lorsque la campagne tourne sur SQLite (valeur par défaut de `.env.test`).
+ *
+ * SQLite n'admet qu'un seul écrivain : les garanties de concurrence de
+ * PostgreSQL — verrou de ligne sur la table `Counter` — n'y sont pas
+ * observables. Les suites concernées sont donc réservées à `pnpm test:pg`.
+ */
+export const SUR_SQLITE = (process.env.DATABASE_URL ?? '').startsWith('file:');
+
 /** Vide les tables métier entre deux tests. */
 export async function reinitialiserBase(): Promise<void> {
   await prismaTest.approvalToken.deleteMany();

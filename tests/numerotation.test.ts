@@ -7,7 +7,7 @@ import {
   numeroProvisoire,
   prochaineSequence,
 } from '@/lib/mission/numero';
-import { prismaTest, reinitialiserBase } from './aide-base';
+import { prismaTest, reinitialiserBase, SUR_SQLITE } from './aide-base';
 
 /**
  * Numérotation des ordres de mission.
@@ -68,7 +68,13 @@ describe('séquence par année', () => {
   });
 });
 
-describe('concurrence — 50 soumissions simultanées', () => {
+/*
+ * Ces deux tests valident le verrou de ligne PostgreSQL sur la table `Counter`.
+ * SQLite sérialise toutes les écritures derrière un verrou global : la question
+ * ne s'y pose pas, et 50 transactions imbriquées y expirent. La suite complète
+ * s'exécute donc avec `pnpm test:pg`, sur le moteur de production.
+ */
+describe.skipIf(SUR_SQLITE)('concurrence — 50 soumissions simultanées', () => {
   it('n’attribue jamais deux fois le même numéro', async () => {
     const NOMBRE = 50;
 

@@ -9,6 +9,31 @@ boîte mail**, sans avoir à se connecter.
 
 L'ensemble tient dans les quotas gratuits de Vercel, Neon et Resend.
 
+## Essayer l'application
+
+[![Ouvrir dans GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Bigschad/ordremission/tree/claude/porteo-ordres-mission-i7jy6e?quickstart=1)
+
+Un clic suffit : le Codespace installe les dépendances, crée une base **SQLite**
+locale, charge un jeu de démonstration et démarre l'application sur le port
+3000, qu'il transfère automatiquement. Ni Postgres, ni Resend, ni compte à
+créer.
+
+L'application n'utilise pas de mot de passe : saisissez une adresse de
+démonstration sur l'écran de connexion, puis récupérez le lien reçu depuis le
+terminal du Codespace avec `pnpm lien connexion`.
+
+| Adresse                           | Rôle                           |
+| --------------------------------- | ------------------------------ |
+| `schadrach.yeye@porteo-group.com` | Collaborateur (matricule 4071) |
+| `rh@porteo-group.com`             | Ressources Humaines            |
+| `admin@porteo-group.com`          | Administrateur                 |
+
+Sur votre machine, la même démonstration se lance avec :
+
+```bash
+corepack enable && pnpm install && pnpm demo
+```
+
 ![Ordre de mission validé, généré par l'application](docs/apercu-pdf.png)
 
 Le document ci-dessus est généré par l'application. Un ordre refusé porte un
@@ -19,6 +44,7 @@ en attente porte un filigrane gris « EN ATTENTE DE VALIDATION ».
 
 ## Sommaire
 
+0. [Essayer l'application](#essayer-lapplication)
 1. [Fonctionnement](#fonctionnement)
 2. [Pile technique](#pile-technique)
 3. [Prérequis](#prérequis)
@@ -107,12 +133,32 @@ document présenté, sans accéder à la moindre donnée personnelle sensible.
 - Un compte **Resend** (offre gratuite) pour l'envoi d'e-mails
 - Un compte **Vercel** (offre Hobby) pour l'hébergement
 
-Pour développer sans Neon, un PostgreSQL 14+ local suffit : l'application
-détecte l'hôte et n'active l'adaptateur Neon que sur une chaîne `*.neon.tech`.
+Pour un simple essai, **rien de tout cela n'est nécessaire** : `pnpm demo`
+utilise SQLite et écrit les e-mails sur disque. Un PostgreSQL local convient
+également ; l'application n'active l'adaptateur Neon que sur une chaîne
+`*.neon.tech`.
 
 ---
 
 ## Installation locale
+
+### Démonstration, sans infrastructure
+
+```bash
+git clone <url-du-dépôt> ordremission
+cd ordremission
+
+corepack enable && pnpm install
+pnpm demo        # .env, base SQLite, jeu de démonstration, serveur
+```
+
+`pnpm demo` génère un `.env` avec une base SQLite (`prisma/demo.db`) et le
+transport e-mail sur disque. Rien n'est installé en dehors du projet.
+
+### Développement sur PostgreSQL
+
+C'est la configuration de production ; à privilégier dès que l'on touche aux
+requêtes ou aux migrations.
 
 ```bash
 git clone <url-du-dépôt> ordremission
@@ -124,13 +170,13 @@ pnpm install
 cp .env.example .env
 openssl rand -base64 32          # valeur à placer dans AUTH_SECRET
 
+pnpm db:generate                 # client Prisma pour PostgreSQL
 pnpm db:deploy                   # applique les migrations
 pnpm db:seed                     # jeu de données de démonstration
 pnpm dev                         # http://localhost:3000
 ```
 
-Quatre variables suffisent pour un essai en local — Resend n'est pas
-nécessaire :
+Quatre variables suffisent — Resend n'est pas nécessaire en local :
 
 ```dotenv
 DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
@@ -138,6 +184,10 @@ DIRECT_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
 AUTH_SECRET="<sortie de openssl rand -base64 32>"
 EMAIL_TRANSPORT="file"
 ```
+
+> **Le client Prisma embarque son moteur.** Après un `pnpm demo` (SQLite),
+> repassez sur PostgreSQL avec `pnpm db:generate` ; dans l'autre sens,
+> `pnpm db:sqlite` s'en charge. Les commandes de test le font automatiquement.
 
 ### Se connecter en local sans envoyer de vrais e-mails
 
@@ -273,17 +323,26 @@ Aucun secret n'est présent dans le code ; `.env*` est exclu du dépôt.
 ### Unitaires — Vitest
 
 ```bash
-cp .env.test.example .env.test          # première fois
-createdb ordremission_test              # base dédiée aux tests
-
-pnpm test
-pnpm test:coverage                      # seuil : 80 % sur src/lib
+cp .env.test.example .env.test    # première fois
+pnpm test                         # SQLite — aucune infrastructure
+pnpm test:coverage                # seuil : 80 % sur src/lib
 ```
 
-Les tests s'appuient sur une base **dédiée** décrite dans `.env.test` ; les
-migrations y sont appliquées automatiquement avant la campagne, et les tables
-métier sont vidées entre les suites. Ne jamais y pointer une base contenant des
-données réelles.
+La suite s'exécute par défaut sur **SQLite** : le fichier `prisma/test.db` est
+reconstruit à chaque campagne, et les tables métier sont vidées entre les
+suites. Rien à installer.
+
+```bash
+cp .env.test.pg.example .env.test.pg   # première fois
+createdb ordremission_test
+pnpm test:pg                           # PostgreSQL, le moteur de production
+```
+
+`pnpm test:pg` rejoue la même suite sur PostgreSQL. **C'est la seule
+configuration qui valide les garanties de concurrence de la numérotation** :
+SQLite n'admet qu'un seul écrivain, la question ne s'y pose pas. Les deux tests
+concernés sont explicitement marqués comme ignorés en mode SQLite, jamais
+supprimés — la sortie de `pnpm test` indique « 2 skipped ».
 
 Sont couverts :
 
@@ -306,9 +365,9 @@ pnpm exec playwright install chromium   # première fois
 pnpm test:e2e
 ```
 
-Playwright démarre lui-même l'application sur le port 3100 avec
-`EMAIL_TRANSPORT=file`, ce qui permet de lire les e-mails — donc les liens de
-connexion et de décision — sans service externe.
+Playwright démarre lui-même l'application sur le port 3100, sur SQLite et avec
+`EMAIL_TRANSPORT=file` : les e-mails — donc les liens de connexion et de
+décision — sont lus depuis le disque, sans service externe.
 
 Scénarios : connexion par lien magique ; adresse inconnue sans fuite
 d'information ; brouillon → modification → soumission → e-mail RH ; validation
