@@ -1,7 +1,7 @@
+import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaClient } from '@prisma/client';
 
 declare global {
-  // eslint-disable-next-line no-var
   var __prisma: PrismaClient | undefined;
 }
 
@@ -14,22 +14,16 @@ declare global {
  */
 function createPrismaClient(): PrismaClient {
   const url = process.env.DATABASE_URL ?? '';
-  const isNeon = /neon\.(tech|build)/.test(url);
+  const log = process.env.NODE_ENV === 'development' ? (['warn', 'error'] as const) : (['error'] as const);
 
-  if (isNeon) {
-    // Imports dynamiques : ces paquets ne sont pas nécessaires hors Neon.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { PrismaNeon } = require('@prisma/adapter-neon') as typeof import('@prisma/adapter-neon');
-    const adapter = new PrismaNeon({ connectionString: url });
+  if (/neon\.(tech|build)/.test(url)) {
     return new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+      adapter: new PrismaNeon({ connectionString: url }),
+      log: [...log],
     });
   }
 
-  return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
-  });
+  return new PrismaClient({ log: [...log] });
 }
 
 export const prisma: PrismaClient = globalThis.__prisma ?? createPrismaClient();

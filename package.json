@@ -32,6 +32,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@auth/core": "0.41.3",
     "@auth/prisma-adapter": "^2.7.4",
     "@hookform/resolvers": "^3.9.1",
     "@neondatabase/serverless": "^0.10.4",
