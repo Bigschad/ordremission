@@ -4,6 +4,7 @@ import { MissionStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
+import { RELANCES_MAX } from '@/lib/mission/constantes';
 import { attribuerNumero, numeroProvisoire } from '@/lib/mission/numero';
 import { appliquerTransition, TransitionInterditeError } from '@/lib/mission/status';
 import { creerTokensApprobation, invaliderTokens } from '@/lib/mission/tokens';
@@ -12,9 +13,6 @@ import { missionBrouillonSchema, missionSchema } from '@/lib/validations/mission
 import { getClientIp } from '@/lib/request';
 import { AccesRefuseError, exigerUtilisateurAction } from '@/lib/session';
 import { echec, erreursDepuisZod, succes, type ActionResultat } from './resultat';
-
-/** Nombre maximal de renvois d'un ordre de mission aux Ressources Humaines. */
-export const RELANCES_MAX = 3;
 
 /** Transforme les données du formulaire en objet simple, pour Zod. */
 function extraire(donnees: FormData) {
