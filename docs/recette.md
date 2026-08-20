@@ -16,7 +16,7 @@ un compte administrateur.
 | 1.2 | Saisir une adresse de collaborateur actif | Écran « Vérifiez votre boîte mail »                                                 | ☐   |
 | 1.3 | Consulter la boîte mail                   | Message « Votre lien de connexion — Ordres de mission Porteo », aux couleurs Porteo | ☐   |
 | 1.4 | Ouvrir le lien                            | Arrivée sur le tableau de bord, nom et matricule affichés en haut à droite          | ☐   |
-| 1.5 | Réouvrir le **même** lien                 | Page « Connexion impossible », aucune session ouverte                               | ☐   |
+| 1.5 | Réouvrir le **même** lien                 | « Ce lien de connexion n'est plus valable », aucune session ouverte                | ☐   |
 | 1.6 | Saisir une adresse inexistante            | Écran **identique** à l'étape 1.2, aucun e-mail envoyé, aucun compte créé           | ☐   |
 | 1.7 | Saisir une adresse désactivée             | Idem 1.6                                                                            | ☐   |
 | 1.8 | Demander 6 liens d'affilée                | Le 6ᵉ est bloqué : « Trop de demandes de connexion »                                | ☐   |
@@ -100,9 +100,9 @@ un compte administrateur.
 | #   | Vérification                                                            | Attendu                                                                                            | OK  |
 | --- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --- |
 | 7.1 | En tant que collaborateur A, ouvrir l'URL d'un ordre du collaborateur B | Page « introuvable » — indiscernable d'un ordre inexistant                                         | ☐   |
-| 7.2 | Idem sur `/api/missions/{id}/pdf`                                       | 404                                                                                                | ☐   |
-| 7.3 | En tant que collaborateur, ouvrir `/rh` puis `/admin/utilisateurs`      | Redirection vers le tableau de bord                                                                | ☐   |
-| 7.4 | `/api/rh/export` sans session                                           | 403 en JSON                                                                                        | ☐   |
+| 7.2 | Idem sur `/missions/{id}/pdf`                                           | 404                                                                                                | ☐   |
+| 7.3 | En tant que collaborateur, ouvrir `/rh/` puis `/admin/utilisateurs`     | Page « Accès refusé » (403)                                                                        | ☐   |
+| 7.4 | `/rh/export.csv` sans session                                           | Redirection vers `/login`                                                                          | ☐   |
 | 7.5 | En-têtes HTTP de la page d'accueil                                      | `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `Referrer-Policy` | ☐   |
 | 7.6 | `/verify/OM-0000-0000`                                                  | « Ordre de mission inconnu »                                                                       | ☐   |
 
@@ -115,7 +115,7 @@ un compte administrateur.
 | 8.3 | Lire le PDF                 | Français, accents corrects                           | ☐   |
 | 8.4 | Dates affichées             | Heure d'Abidjan (UTC+0), format `jj/MM/aaaa à HHhmm` | ☐   |
 | 8.5 | Listes vides                | Message explicite, jamais un écran blanc             | ☐   |
-| 8.6 | Chargements                 | Squelettes visibles, jamais de saut de mise en page  | ☐   |
+| 8.6 | Navigation au retour arrière | Pages toujours à jour, aucun formulaire resoumis par erreur | ☐   |
 
 ---
 

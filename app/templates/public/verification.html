@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block titre %}Vérification d&rsquo;authenticité — {{ nom_application }}{% endblock %}
+{% block classe_conteneur %}conteneur--etroit{% endblock %}
+
+{% block contenu %}
+  {% with titre = "Vérification d'authenticité",
+          sous_titre = 'Ordres de mission — PORTEO GROUP' %}
+    {% include 'partiels/entete_public.html' %}
+  {% endwith %}
+
+  {% if trop_de_requetes %}
+    <div class="carte">
+      <div class="carte__corps">
+        <h2>Trop de vérifications</h2>
+        <p class="discret" style="margin:0;">
+          Merci de patienter quelques minutes avant de vérifier un nouvel ordre de mission.
+        </p>
+      </div>
+    </div>
+
+  {% elif not mission %}
+    <div class="carte">
+      <div class="carte__corps">
+        <h2>Ordre de mission inconnu</h2>
+        <p>Aucun ordre de mission ne porte le numéro <strong>{{ numero }}</strong>.</p>
+        <p class="discret" style="margin:0;">
+          Vérifiez le numéro inscrit sur le document. Un document présentant un numéro inconnu
+          ne peut pas être considéré comme authentique.
+        </p>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="carte">
+      <div class="carte__entete">
+        <h2>
+          {{ mission.numero }}
+          <span class="badge {{ variante_statut(mission.statut) }}">{{ libelle }}</span>
+        </h2>
+      </div>
+      <div class="carte__corps">
+        <dl class="definitions">
+          <div><dt>Statut</dt><dd>{{ libelle }}</dd></div>
+          <div><dt>Lieu de la mission</dt><dd>{{ mission.lieu }}</dd></div>
+          <div><dt>Départ</dt><dd>{{ mission.date_depart | datetime }}</dd></div>
+          <div><dt>Retour</dt><dd>{{ mission.date_retour | datetime }}</dd></div>
+          {% if mission.decide_le %}
+            <div><dt>Date de décision</dt><dd>{{ mission.decide_le | datetime }}</dd></div>
+          {% endif %}
+          {% if mission.decide_par_nom %}
+            <div><dt>Validé par</dt><dd>{{ mission.decide_par_nom }}</dd></div>
+          {% endif %}
+        </dl>
+
+        {% if not valide %}
+          <p class="message message--attention" style="margin:1rem 0 0;">
+            Cet ordre de mission n&rsquo;est pas validé : il ne constitue pas une autorisation
+            de déplacement.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% include 'partiels/pied_public.html' %}
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% set valider = sens == 'approve' %}
+{% block titre %}
+  {{ 'Validation' if valider else 'Refus' }} d&rsquo;un ordre de mission — {{ nom_application }}
+{% endblock %}
+{% block classe_conteneur %}conteneur--etroit{% endblock %}
+
+{% block contenu %}
+  {% with titre = ('Validation' if valider else 'Refus') ~ " d'un ordre de mission",
+          sous_titre = 'Ressources Humaines — PORTEO GROUP' %}
+    {% include 'partiels/entete_public.html' %}
+  {% endwith %}
+
+  {% if message %}
+    <div class="message message--erreur" role="alert">
+      <strong>Lien inutilisable</strong>
+      <p style="margin:0.4rem 0 0;">{{ message }}</p>
+    </div>
+
+  {% elif confirme %}
+    <div class="message message--{{ 'succes' if valider else 'erreur' }}" role="status">
+      <strong>Ordre de mission {{ mission.numero }} {{ etat }}</strong>
+      <p style="margin:0.4rem 0 0;">
+        Le collaborateur vient d&rsquo;être informé par e-mail
+        {%- if valider %} et reçoit son ordre de mission validé au format PDF
+        {%- else %}, motif du refus à l&rsquo;appui{% endif %}.
+      </p>
+      <p style="margin:0.4rem 0 0;font-size:0.85rem;">
+        Ce lien est désormais sans effet : il ne peut plus servir à modifier cette décision.
+      </p>
+    </div>
+
+  {% else %}
+    <div class="carte">
+      <div class="carte__entete">
+        <h2>Ordre de mission {{ mission.numero }}</h2>
+        <p class="sous-titre">
+          {% if valider %}
+            Vérifiez les informations ci-dessous, puis confirmez la validation.
+          {% else %}
+            Indiquez le motif du refus : il sera communiqué au collaborateur.
+          {% endif %}
+          Aucune décision n&rsquo;est enregistrée tant que vous n&rsquo;avez pas confirmé.
+        </p>
+      </div>
+
+      <div class="carte__corps">
+        {% include 'partiels/recapitulatif.html' %}
+
+        {% if erreur %}
+          <p class="message message--erreur" role="alert" style="margin-top:1rem;">{{ erreur }}</p>
+        {% endif %}
+
+        <form method="post"
+              action="{{ url_for('public.approuver_formulaire' if valider else 'public.refuser_formulaire', jeton=jeton) }}"
+              style="margin-top:1.25rem;" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          {% if not valider %}
+            <div class="champ">
+              <label for="motif">Motif du refus <span class="obligatoire">*</span></label>
+              <textarea id="motif" name="motif" rows="4" required
+                {% if erreur %}aria-invalid="true"{% endif %}
+                placeholder="Précisez la raison du refus : elle sera transmise au collaborateur."
+              >{{ motif or '' }}</textarea>
+              <p class="aide">Minimum 10 caractères.</p>
+            </div>
+          {% endif %}
+
+          <button type="submit" class="bouton {{ 'bouton--succes' if valider else 'bouton--refus' }}"
+                  style="width:100%;">
+            {{ 'Confirmer la validation' if valider else 'Confirmer le refus' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  {% include 'partiels/pied_public.html' %}
+{% endblock %}

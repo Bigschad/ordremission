@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block titre %}Collaborateurs — {{ nom_application }}{% endblock %}
+
+{% macro champs_fiche(prefixe, fiche) %}
+  <div class="grille grille--deux">
+    <div class="champ">
+      <label for="{{ prefixe }}-nom">Nom</label>
+      <input id="{{ prefixe }}-nom" name="nom" required value="{{ fiche.nom if fiche else '' }}" />
+    </div>
+    <div class="champ">
+      <label for="{{ prefixe }}-prenoms">Prénoms</label>
+      <input id="{{ prefixe }}-prenoms" name="prenoms" required value="{{ fiche.prenoms if fiche else '' }}" />
+    </div>
+    <div class="champ">
+      <label for="{{ prefixe }}-matricule">Matricule</label>
+      <input id="{{ prefixe }}-matricule" name="matricule" required value="{{ fiche.matricule if fiche else '' }}" />
+    </div>
+    <div class="champ">
+      <label for="{{ prefixe }}-email">Adresse e-mail</label>
+      <input id="{{ prefixe }}-email" name="email" type="email" required value="{{ fiche.email if fiche else '' }}" />
+    </div>
+  </div>
+
+  <div class="champ">
+    <label for="{{ prefixe }}-fonction">Fonction</label>
+    <input id="{{ prefixe }}-fonction" name="fonction" required value="{{ fiche.fonction if fiche else '' }}" />
+  </div>
+
+  <div class="grille grille--deux">
+    <div class="champ">
+      <label for="{{ prefixe }}-role">Rôle</label>
+      <select id="{{ prefixe }}-role" name="role">
+        {% for role in roles %}
+          <option value="{{ role.value }}"
+            {% if fiche and fiche.role == role %}selected{% endif %}>
+            {{ libelles_role[role] }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="champ" style="display:flex;align-items:flex-end;">
+      <label class="option" style="width:100%;">
+        <input type="checkbox" name="actif" {% if not fiche or fiche.actif %}checked{% endif %} />
+        Compte actif
+      </label>
+    </div>
+  </div>
+{% endmacro %}
+
+{% block contenu %}
+  <div class="entete-page">
+    <div>
+      <h1>Collaborateurs</h1>
+      <p class="sous-titre">
+        {{ utilisateurs | length }} fiche{{ 's' if utilisateurs | length > 1 }},
+        dont {{ actifs }} active{{ 's' if actifs > 1 }}.
+        Seul un collaborateur enregistré et actif peut se connecter.
+      </p>
+    </div>
+  </div>
+
+  <section class="carte">
+    <div class="carte__corps">
+      <details class="boite">
+        <summary>+ Nouveau collaborateur</summary>
+        <p class="discret">
+          Le collaborateur pourra se connecter dès l&rsquo;enregistrement, en demandant un lien
+          à son adresse professionnelle.
+        </p>
+        <form method="post" action="{{ url_for('admin.creer') }}" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          {{ champs_fiche('nouveau', none) }}
+          <button type="submit" class="bouton">Enregistrer</button>
+        </form>
+      </details>
+
+      <details class="boite" style="margin-top:1rem;">
+        <summary>Importer un fichier CSV</summary>
+        <p class="discret">
+          Fichier séparé par des virgules ou des points-virgules, avec en première ligne les
+          colonnes : {{ colonnes_csv | join(', ') }}. Les collaborateurs déjà connus (même
+          adresse e-mail) sont mis à jour.
+        </p>
+        <form method="post" action="{{ url_for('admin.importer') }}" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <div class="champ">
+            <label for="fichier">Fichier CSV</label>
+            <input id="fichier" name="fichier" type="file" accept=".csv,text/csv" required />
+          </div>
+          <button type="submit" class="bouton">Importer</button>
+        </form>
+      </details>
+    </div>
+  </section>
+
+  <section class="carte">
+    <div class="tableau-defilant">
+      <table class="donnees">
+        <caption class="sr-only">Liste des collaborateurs</caption>
+        <thead>
+          <tr>
+            <th>Collaborateur</th>
+            <th>Matricule</th>
+            <th>Fonction</th>
+            <th>Rôle</th>
+            <th>Ordres</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for personne in utilisateurs %}
+            <tr {% if not personne.actif %}style="opacity:0.6;"{% endif %}>
+              <td>
+                <strong>{{ personne.prenoms }} {{ personne.nom }}</strong>
+                <div class="discret">{{ personne.email }}</div>
+              </td>
+              <td class="mono">{{ personne.matricule }}</td>
+              <td>{{ personne.fonction }}</td>
+              <td>
+                <span class="badge badge--neutre">{{ libelles_role[personne.role] }}</span>
+                {% if not personne.actif %}<span class="badge badge--annule">Désactivé</span>{% endif %}
+              </td>
+              <td>{{ nb_missions.get(personne.id, 0) }}</td>
+              <td style="text-align:right;">
+                <details class="boite" style="display:inline-block;">
+                  <summary class="bouton bouton--discret bouton--petit" style="display:inline-flex;">
+                    Modifier
+                  </summary>
+                  <form method="post"
+                        action="{{ url_for('admin.modifier', utilisateur_id=personne.id) }}"
+                        style="margin-top:0.75rem;text-align:left;min-width:22rem;" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    {{ champs_fiche(personne.id, personne) }}
+                    <button type="submit" class="bouton">Enregistrer</button>
+                  </form>
+                </details>
+
+                <form method="post"
+                      action="{{ url_for('admin.activation', utilisateur_id=personne.id) }}"
+                      style="display:inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  <input type="hidden" name="actif" value="{{ 'non' if personne.actif else 'oui' }}" />
+                  <button type="submit" class="bouton bouton--discret bouton--petit"
+                    {% if personne.id == utilisateur.id %}disabled
+                      title="Vous ne pouvez pas désactiver votre propre compte"{% endif %}>
+                    {{ 'Désactiver' if personne.actif else 'Réactiver' }}
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1B2A4A" />
+    <title>{% block titre %}{{ nom_application }}{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='porteo.css') }}" />
+  </head>
+  <body>
+    {% block entete %}
+      {% if utilisateur %}
+        <header class="entete">
+          <div class="entete__contenu">
+            <a class="marque" href="{{ url_for('missions.tableau_de_bord') }}">
+              <span class="marque__nom">PORTEO</span>
+              <span class="marque__suite">GROUP</span>
+            </a>
+
+            <nav aria-label="Navigation principale">
+              <ul class="nav">
+                <li>
+                  <a href="{{ url_for('missions.tableau_de_bord') }}"
+                     {% if request.path == '/' %}aria-current="page"{% endif %}>
+                    Mes ordres de mission
+                  </a>
+                </li>
+                {% if est_rh %}
+                  <li>
+                    <a href="{{ url_for('rh.file') }}"
+                       {% if request.path.startswith('/rh') %}aria-current="page"{% endif %}>
+                      File Ressources Humaines
+                    </a>
+                  </li>
+                {% endif %}
+                {% if est_admin %}
+                  <li>
+                    <a href="{{ url_for('admin.liste') }}"
+                       {% if request.path.startswith('/admin') %}aria-current="page"{% endif %}>
+                      Collaborateurs
+                    </a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+
+            <div class="entete__identite">
+              <strong>{{ utilisateur.prenoms }} {{ utilisateur.nom }}</strong>
+              <span>Matricule {{ utilisateur.matricule }}</span>
+            </div>
+
+            <form method="post" action="{{ url_for('auth.deconnexion') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="bouton bouton--discret bouton--petit">Quitter</button>
+            </form>
+          </div>
+        </header>
+      {% endif %}
+    {% endblock %}
+
+    <main class="conteneur {% block classe_conteneur %}{% endblock %}">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="messages" role="status">
+            {% for categorie, texte in messages %}
+              <li class="message message--{{ categorie }}">{{ texte }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      {% block contenu %}{% endblock %}
+    </main>
+
+    <footer class="pied">
+      PORTEO GROUP — Abidjan-Marcory, Immeuble Porteo, Boulevard Valery Giscard d&rsquo;Estaing,
+      08 BP 2212 Abidjan 09
+    </footer>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

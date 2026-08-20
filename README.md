@@ -15,12 +15,12 @@ L'ensemble tient dans les quotas gratuits de Vercel, Neon et Resend.
 
 Un clic suffit : le Codespace installe les dépendances, crée une base **SQLite**
 locale, charge un jeu de démonstration et démarre l'application sur le port
-3000, qu'il transfère automatiquement. Ni Postgres, ni Resend, ni compte à
+5000, qu'il transfère automatiquement. Ni Postgres, ni Resend, ni compte à
 créer.
 
 L'application n'utilise pas de mot de passe : saisissez une adresse de
 démonstration sur l'écran de connexion, puis récupérez le lien reçu depuis le
-terminal du Codespace avec `pnpm lien connexion`.
+terminal du Codespace avec `python -m scripts.lien connexion`.
 
 | Adresse                           | Rôle                           |
 | --------------------------------- | ------------------------------ |
@@ -31,14 +31,16 @@ terminal du Codespace avec `pnpm lien connexion`.
 Sur votre machine, la même démonstration se lance avec :
 
 ```bash
-corepack enable && pnpm install && pnpm demo
+pip install -r requirements-dev.txt
+python -m scripts.demo
 ```
 
-![Ordre de mission validé, généré par l'application](docs/apercu-pdf.png)
+![Ordre de mission en attente de validation, généré par l'application](docs/apercu-pdf.png)
 
 Le document ci-dessus est généré par l'application. Un ordre refusé porte un
 filigrane rouge et le motif du refus (`docs/apercu-pdf-refuse.png`) ; un ordre
-en attente porte un filigrane gris « EN ATTENTE DE VALIDATION ».
+validé porte la mention « Validé électroniquement » dans la colonne
+_Ressources Humaines_. D'autres exemples sont dans `docs/pdf-exemples/`.
 
 ---
 
@@ -109,34 +111,37 @@ document présenté, sans accéder à la moindre donnée personnelle sensible.
 
 ## Pile technique
 
-| Couche           | Choix                                                          |
-| ---------------- | -------------------------------------------------------------- |
-| Framework        | Next.js 15 — App Router, Server Actions, TypeScript strict     |
-| Interface        | Tailwind CSS v4, composants shadcn/ui, lucide-react            |
-| Formulaires      | react-hook-form + zod + @hookform/resolvers                    |
-| ORM              | Prisma 6, adaptateur `@prisma/adapter-neon`                    |
-| Base             | Neon Postgres                                                  |
-| Authentification | Auth.js v5 — lien magique par e-mail uniquement                |
-| E-mail           | Resend + React Email                                           |
-| PDF              | `@react-pdf/renderer` (runtime Node, ni Puppeteer ni Chromium) |
-| Tests            | Vitest (unitaires) et Playwright (bout en bout)                |
-| Fuseau           | `Africa/Abidjan` — stockage en UTC, affichage en heure locale  |
-| Langue           | Français intégral : interface, e-mails, PDF, messages d'erreur |
+| Couche           | Choix                                                              |
+| ---------------- | ------------------------------------------------------------------ |
+| Framework        | Flask 3.1 — gabarits Jinja2 rendus côté serveur                    |
+| Interface        | HTML et CSS écrits à la main, sans framework ni build              |
+| Formulaires      | HTML natif, validation partagée dans `app/domaine/validations.py`  |
+| Protection CSRF  | Flask-WTF                                                          |
+| ORM              | SQLAlchemy 2.0 (`Mapped[]`), migrations Alembic                    |
+| Base             | Neon Postgres via psycopg 3 ; SQLite pour la démo et les tests     |
+| Authentification | Lien magique par e-mail uniquement, aucun mot de passe             |
+| E-mail           | API HTTP Resend (`httpx`), gabarits Jinja2                         |
+| PDF              | ReportLab — Python pur, ni Puppeteer ni Chromium                   |
+| QR code          | segno — Python pur, aucune dépendance système                      |
+| Tests            | pytest (unitaires et HTTP) et Playwright (bout en bout)            |
+| Qualité          | ruff (lint et format), mypy en mode `strict`                       |
+| Fuseau           | `Africa/Abidjan` — stockage en UTC, affichage en heure locale      |
+| Langue           | Français intégral : interface, e-mails, PDF, messages d'erreur     |
+
+**Aucune dépendance système** : tout s'installe avec `pip`, ce qui est la
+condition pour tenir dans les 250 Mo d'une fonction serverless Vercel.
 
 ---
 
 ## Prérequis
 
-- **Node.js 20 ou supérieur** (`node -v`)
-- **pnpm 9** — `corepack enable && corepack prepare pnpm@9.15.4 --activate`
+- **Python 3.11 ou supérieur** (`python --version`)
 - Un compte **Neon** (offre gratuite) pour la base de données
 - Un compte **Resend** (offre gratuite) pour l'envoi d'e-mails
 - Un compte **Vercel** (offre Hobby) pour l'hébergement
 
-Pour un simple essai, **rien de tout cela n'est nécessaire** : `pnpm demo`
-utilise SQLite et écrit les e-mails sur disque. Un PostgreSQL local convient
-également ; l'application n'active l'adaptateur Neon que sur une chaîne
-`*.neon.tech`.
+Pour un simple essai, **rien de tout cela n'est nécessaire** :
+`python -m scripts.demo` utilise SQLite et écrit les e-mails sur disque.
 
 ---
 
@@ -148,11 +153,13 @@ utilise SQLite et écrit les e-mails sur disque. Un PostgreSQL local convient
 git clone <url-du-dépôt> ordremission
 cd ordremission
 
-corepack enable && pnpm install
-pnpm demo        # .env, base SQLite, jeu de démonstration, serveur
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+
+python -m scripts.demo        # .env, base SQLite, jeu de démonstration, serveur
 ```
 
-`pnpm demo` génère un `.env` avec une base SQLite (`prisma/demo.db`) et le
+`scripts/demo.py` génère un `.env` avec une base SQLite (`demo.db`) et le
 transport e-mail sur disque. Rien n'est installé en dehors du projet.
 
 ### Développement sur PostgreSQL
@@ -161,48 +168,41 @@ C'est la configuration de production ; à privilégier dès que l'on touche aux
 requêtes ou aux migrations.
 
 ```bash
-git clone <url-du-dépôt> ordremission
-cd ordremission
-
-corepack enable
-pnpm install
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
 
 cp .env.example .env
-openssl rand -base64 32          # valeur à placer dans AUTH_SECRET
+python -c "import secrets; print(secrets.token_urlsafe(32))"   # → SECRET_KEY
 
-pnpm db:generate                 # client Prisma pour PostgreSQL
-pnpm db:deploy                   # applique les migrations
-pnpm db:seed                     # jeu de données de démonstration
-pnpm dev                         # http://localhost:3000
+createdb ordremission
+alembic upgrade head          # applique les migrations
+python -m scripts.seed        # jeu de données de démonstration
+flask --app wsgi:app run      # http://localhost:5000
 ```
 
 Quatre variables suffisent — Resend n'est pas nécessaire en local :
 
 ```dotenv
 DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
-DIRECT_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
-AUTH_SECRET="<sortie de openssl rand -base64 32>"
-EMAIL_TRANSPORT="file"
+SECRET_KEY="<sortie de la commande ci-dessus>"
+EMAIL_TRANSPORT="fichier"
+APP_URL="http://localhost:5000"
 ```
-
-> **Le client Prisma embarque son moteur.** Après un `pnpm demo` (SQLite),
-> repassez sur PostgreSQL avec `pnpm db:generate` ; dans l'autre sens,
-> `pnpm db:sqlite` s'en charge. Les commandes de test le font automatiquement.
 
 ### Se connecter en local sans envoyer de vrais e-mails
 
-Avec `EMAIL_TRANSPORT="file"`, les messages sont écrits dans `.mailbox/` au
-lieu d'être envoyés. La commande `pnpm lien` en extrait les liens :
+Avec `EMAIL_TRANSPORT="fichier"`, les messages sont écrits dans `.mailbox/` au
+lieu d'être envoyés. `scripts/lien.py` en extrait les liens :
 
 ```bash
-pnpm lien              # dernier message : destinataires, objet, pièces jointes, liens
-pnpm lien connexion    # dernier lien de connexion, seul
-pnpm lien approve      # dernier lien de validation RH
-pnpm lien reject       # dernier lien de refus RH
+python -m scripts.lien              # dernier message : destinataires, objet, pièces jointes, liens
+python -m scripts.lien connexion    # dernier lien de connexion, seul
+python -m scripts.lien approve      # dernier lien de validation RH
+python -m scripts.lien reject       # dernier lien de refus RH
 ```
 
 Le PDF joint n'est pas écrit sur disque par ce transport ; pour l'examiner,
-téléchargez-le depuis l'écran de détail ou lancez `pnpm pdf:exemples`.
+téléchargez-le depuis l'écran de détail ou lancez `python -m scripts.exemples_pdf`.
 
 Comptes du jeu de démonstration :
 
@@ -212,12 +212,6 @@ Comptes du jeu de démonstration :
 | `rh@porteo-group.com`             | Ressources Humaines            |
 | `admin@porteo-group.com`          | Administrateur                 |
 
-### Logo
-
-Déposez le logo officiel dans `public/porteo-logo.png` (PNG, environ
-360 × 130 px). En son absence, le PDF et l'interface utilisent un bloc
-typographique de remplacement — c'est le cas sur la capture ci-dessus.
-
 ---
 
 ## Création de la base Neon
@@ -225,18 +219,19 @@ typographique de remplacement — c'est le cas sur la capture ci-dessus.
 1. Créer un projet sur [neon.tech](https://neon.tech), région **Europe
    (Frankfurt)** ou **AWS eu-central-1** — la plus proche d'Abidjan parmi
    celles de l'offre gratuite.
-2. Récupérer **deux** chaînes de connexion dans l'onglet _Connection Details_ :
-   - la chaîne **pooled** (l'hôte contient `-pooler`) → `DATABASE_URL` ;
-     c'est celle qu'utilise l'application en production.
-   - la chaîne **directe** (sans `-pooler`) → `DIRECT_URL` ; elle sert
-     uniquement à `prisma migrate`, qui a besoin d'une session persistante.
-3. Conserver `?sslmode=require` à la fin des deux chaînes.
+2. Récupérer la chaîne de connexion **pooled** (l'hôte contient `-pooler`)
+   dans l'onglet _Connection Details_ → `DATABASE_URL`.
+3. Conserver `?sslmode=require` à la fin de la chaîne.
 4. Appliquer le schéma :
 
 ```bash
-pnpm db:deploy    # prisma migrate deploy
-pnpm db:seed      # facultatif : jeu de démonstration
+alembic upgrade head       # migrations
+python -m scripts.seed     # facultatif : jeu de démonstration
 ```
+
+> La chaîne peut être fournie sous la forme `postgres://` ou `postgresql://` :
+> `app/config.py` la ramène à `postgresql+psycopg://`, requis par SQLAlchemy
+> pour utiliser le pilote psycopg 3.
 
 > Neon met les projets gratuits en veille après quelques minutes d'inactivité.
 > La première requête après une mise en veille prend une à deux secondes.
@@ -279,19 +274,17 @@ HR_EMAIL="rh@porteo-group.com,rh2@porteo-group.com"
 
 Toutes sont documentées dans [`.env.example`](.env.example).
 
-| Variable               | Rôle                                                       | Obligatoire   |
-| ---------------------- | ---------------------------------------------------------- | ------------- |
-| `DATABASE_URL`         | Chaîne Neon _pooled_, utilisée par l'application           | oui           |
-| `DIRECT_URL`           | Chaîne Neon directe, utilisée par les migrations           | oui           |
-| `AUTH_SECRET`          | Secret Auth.js — `openssl rand -base64 32`                 | oui           |
-| `AUTH_URL`             | URL publique de l'application                              | en production |
-| `AUTH_TRUST_HOST`      | `true` derrière le proxy Vercel                            | en production |
-| `RESEND_API_KEY`       | Clé d'API Resend                                           | oui           |
-| `EMAIL_FROM`           | Expéditeur des e-mails                                     | oui           |
-| `HR_EMAIL`             | Destinataires RH, séparés par des virgules                 | oui           |
-| `APP_URL`              | URL publique, utilisée dans les liens et le QR code        | oui           |
-| `NEXT_PUBLIC_APP_NAME` | Titre affiché dans l'interface                             | non           |
-| `EMAIL_TRANSPORT`      | `file` écrit les e-mails sur disque — **tests uniquement** | non           |
+| Variable          | Rôle                                                          | Obligatoire |
+| ----------------- | ------------------------------------------------------------- | ----------- |
+| `DATABASE_URL`    | Chaîne Neon _pooled_, ou `sqlite:///…` pour la démonstration  | oui         |
+| `SECRET_KEY`      | Signe le cookie de session et les jetons CSRF                 | oui         |
+| `APP_URL`         | URL publique, utilisée dans les liens et le QR code           | oui         |
+| `RESEND_API_KEY`  | Clé d'API Resend                                              | oui         |
+| `EMAIL_FROM`      | Expéditeur des e-mails                                        | non         |
+| `HR_EMAIL`        | Destinataires RH, séparés par des virgules                    | non         |
+| `APP_NAME`        | Titre affiché dans l'interface                                | non         |
+| `EMAIL_TRANSPORT` | `fichier` écrit les e-mails sur disque — **tests uniquement** | non         |
+| `FLASK_DEBUG`     | `1` active le rechargement des gabarits                       | non         |
 
 Aucun secret n'est présent dans le code ; `.env*` est exclu du dépôt.
 
@@ -299,108 +292,120 @@ Aucun secret n'est présent dans le code ; `.env*` est exclu du dépôt.
 
 ## Commandes
 
-| Commande             | Effet                                          |
-| -------------------- | ---------------------------------------------- |
-| `pnpm dev`           | Serveur de développement                       |
-| `pnpm build`         | Build de production                            |
-| `pnpm start`         | Serveur de production                          |
-| `pnpm lint`          | ESLint                                         |
-| `pnpm typecheck`     | Vérification TypeScript seule                  |
-| `pnpm format`        | Prettier                                       |
-| `pnpm test`          | Tests unitaires (Vitest)                       |
-| `pnpm test:coverage` | Tests unitaires avec couverture                |
-| `pnpm test:e2e`      | Tests de bout en bout (Playwright)             |
-| `pnpm db:migrate`    | Crée et applique une migration (développement) |
-| `pnpm db:deploy`     | Applique les migrations (production)           |
-| `pnpm db:seed`       | Jeu de données de démonstration                |
-| `pnpm db:studio`     | Prisma Studio                                  |
-| `pnpm pdf:exemples`  | Génère des PDF d'exemple dans `pdf-exemples/`  |
+| Commande                          | Effet                                              |
+| --------------------------------- | -------------------------------------------------- |
+| `flask --app wsgi:app run`        | Serveur de développement                           |
+| `gunicorn wsgi:app`               | Serveur de production hors Vercel                  |
+| `ruff check .`                    | Lint                                               |
+| `ruff format .`                   | Formatage                                          |
+| `mypy app scripts wsgi.py tests`  | Typage strict                                      |
+| `pytest`                          | Tests unitaires et HTTP (SQLite)                   |
+| `pytest --cov=app`                | Idem, avec couverture — seuil 80 % sur `app/`      |
+| `pytest e2e`                      | Tests de bout en bout (Playwright)                 |
+| `alembic upgrade head`            | Applique les migrations                            |
+| `alembic revision --autogenerate` | Crée une migration à partir du modèle              |
+| `python -m scripts.seed`          | Jeu de données de démonstration                    |
+| `python -m scripts.demo`          | Démonstration complète sur SQLite                  |
+| `python -m scripts.lien`          | Liens contenus dans les e-mails du transport test  |
+| `python -m scripts.exemples_pdf`  | Régénère `docs/pdf-exemples/` et les aperçus PNG   |
 
 ---
 
 ## Tests
 
-### Unitaires — Vitest
+### Unitaires et HTTP — pytest
 
 ```bash
-cp .env.test.example .env.test    # première fois
-pnpm test                         # SQLite — aucune infrastructure
-pnpm test:coverage                # seuil : 80 % sur src/lib
+pytest              # SQLite temporaire — aucune infrastructure
+pytest --cov=app    # avec couverture
 ```
 
-La suite s'exécute par défaut sur **SQLite** : le fichier `prisma/test.db` est
-reconstruit à chaque campagne, et les tables métier sont vidées entre les
-suites. Rien à installer.
+La campagne s'exécute par défaut sur une base **SQLite** créée dans un dossier
+temporaire et détruite à la fin. Les tables métier sont vidées entre chaque
+test. Rien à installer, rien à nettoyer.
 
 ```bash
-cp .env.test.pg.example .env.test.pg   # première fois
-createdb ordremission_test
-pnpm test:pg                           # PostgreSQL, le moteur de production
+createdb om_test
+TEST_DATABASE_URL="postgresql://om:om@localhost:5432/om_test" pytest
 ```
 
-`pnpm test:pg` rejoue la même suite sur PostgreSQL. **C'est la seule
-configuration qui valide les garanties de concurrence de la numérotation** :
-SQLite n'admet qu'un seul écrivain, la question ne s'y pose pas. Les deux tests
-concernés sont explicitement marqués comme ignorés en mode SQLite, jamais
-supprimés — la sortie de `pnpm test` indique « 2 skipped ».
+La même campagne rejouée sur PostgreSQL, **la seule configuration qui valide
+les garanties de concurrence de la numérotation** : SQLite n'admet qu'un seul
+écrivain, la question ne s'y pose pas. Le test concerné est marqué `postgres`
+et explicitement ignoré en mode SQLite, jamais supprimé — la sortie de
+`pytest` indique alors « 1 skipped ».
 
 Sont couverts :
 
 - l'attribution des numéros, dont un test de concurrence sur **50 soumissions
   simultanées** — aucune collision, aucun trou dans la séquence ;
-- chaque règle métier des validations Zod, cas passant et cas bloquant ;
+- chaque règle métier de validation, cas passant et cas bloquant ;
 - le cycle de vie des jetons : usage unique, expiration, invalidation croisée,
   et absence d'effet de bord à la simple consultation ;
 - les **35 combinaisons** statut × transition de la machine à états ;
-- le contrôle d'accès des requêtes, les décisions concurrentes, le rate
-  limiting, le journal d'audit, l'export et l'import CSV ;
+- le contrôle d'accès des requêtes, les décisions concurrentes, la limitation
+  de débit, le journal d'audit, l'export et l'import CSV ;
+- le transport e-mail, y compris une clé absente, une erreur HTTP de Resend et
+  un service injoignable — aucun de ces cas ne doit lever ;
 - la non-régression du PDF : une seule page, numéro présent, libellés du
-  formulaire papier dans l'ordre attendu.
+  formulaire papier dans l'ordre attendu ;
+- les cinq scénarios du cahier des charges rejoués à travers les vraies routes
+  HTTP (`tests/test_parcours.py`).
 
 ### Bout en bout — Playwright
 
 ```bash
-cp .env.test.example .env.test          # si ce n'est pas déjà fait
-pnpm exec playwright install chromium   # première fois
-pnpm test:e2e
+playwright install chromium    # première fois
+pytest e2e
 ```
 
-Playwright démarre lui-même l'application sur le port 3100, sur SQLite et avec
-`EMAIL_TRANSPORT=file` : les e-mails — donc les liens de connexion et de
-décision — sont lus depuis le disque, sans service externe.
+La campagne démarre elle-même le serveur sur un port libre, sur SQLite et avec
+`EMAIL_TRANSPORT=fichier` : les e-mails — donc les liens de connexion et de
+décision — sont lus depuis le disque, sans service externe. Les décisions RH
+sont prises dans un **contexte de navigation distinct**, sans session
+applicative, exactement comme depuis une boîte mail.
 
-Scénarios : connexion par lien magique ; adresse inconnue sans fuite
-d'information ; brouillon → modification → soumission → e-mail RH ; validation
-depuis la boîte mail sans connexion ; refus sans puis avec motif ; rejeu d'un
-lien déjà consommé.
+Scénarios : connexion par lien magique ; lien de connexion à usage unique ;
+brouillon → modification → soumission → e-mail RH ; saisie invalide sans perte
+de données ; validation depuis la boîte mail sans connexion ; refus sans puis
+avec motif ; rejeu d'un lien déjà consommé ; cloisonnement des rôles.
+
+> Sur un environnement fournissant déjà un Chromium (conteneur de CI),
+> `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/chemin/vers/chrome pytest e2e` évite un
+> second téléchargement.
 
 ---
 
 ## Déploiement sur Vercel
 
-1. **Importer le dépôt** sur Vercel. Le framework Next.js est détecté seul ;
-   [`vercel.json`](vercel.json) fixe la région **`cdg1` (Paris)**, la plus
-   proche d'Abidjan parmi celles de l'offre Hobby.
+1. **Importer le dépôt** sur Vercel. Le runtime Python est détecté grâce à
+   [`api/index.py`](api/index.py) ; [`vercel.json`](vercel.json) dirige toutes
+   les routes vers cette unique fonction et fixe la région **`cdg1` (Paris)**,
+   la plus proche d'Abidjan parmi celles de l'offre Hobby.
 
 2. **Renseigner les variables d'environnement** (section _Settings →
    Environment Variables_) pour les environnements _Production_ et _Preview_ :
 
    ```
-   DATABASE_URL, DIRECT_URL, AUTH_SECRET, AUTH_URL, AUTH_TRUST_HOST,
-   RESEND_API_KEY, EMAIL_FROM, HR_EMAIL, APP_URL, NEXT_PUBLIC_APP_NAME
+   DATABASE_URL, SECRET_KEY, APP_URL, RESEND_API_KEY, EMAIL_FROM,
+   HR_EMAIL, APP_NAME
    ```
 
-   `AUTH_URL` et `APP_URL` doivent porter l'URL **définitive** : ce sont elles
-   qui construisent les liens des e-mails et le QR code du PDF.
+   `APP_URL` doit porter l'URL **définitive** : c'est elle qui construit les
+   liens des e-mails et le QR code du PDF.
 
-3. **Build.** La commande `pnpm run vercel-build` enchaîne
-   `prisma generate`, `prisma migrate deploy` puis `next build` : le schéma de
-   la base est donc mis à jour à chaque déploiement.
+3. **Migrations.** Le déploiement Vercel n'exécute pas de commande de build
+   côté base : appliquer les migrations depuis un poste avant de déployer un
+   changement de schéma.
+
+   ```bash
+   DATABASE_URL="<chaîne Neon>" alembic upgrade head
+   ```
 
 4. **Vérifier le parcours complet en production** en suivant la
    [checklist de recette](docs/recette.md).
 
-> **Ne jamais activer `EMAIL_TRANSPORT=file` en production** : les e-mails
+> **Ne jamais activer `EMAIL_TRANSPORT=fichier` en production** : les e-mails
 > seraient écrits sur un disque éphémère au lieu d'être envoyés.
 
 ---
@@ -412,13 +417,13 @@ vigilance, et ce qui a été fait pour les respecter :
 
 ### Vercel Hobby
 
-| Quota                             | Situation                                                                                                                                                                                                                                   |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 100 Go de bande passante par mois | Largement suffisant : 103 ko de JS partagé, 174 ko au maximum sur un écran, aucun média lourd.                                                                                                                                              |
-| 10 s d'exécution par fonction     | `maxDuration = 10` déclaré sur les routes PDF, aperçu, export et authentification. Un PDF se rend en quelques centaines de millisecondes.                                                                                                   |
-| 250 Mo décompressés par fonction  | La fonction la plus lourde (PDF : `@react-pdf/renderer` + Prisma) pèse **≈ 24 Mo**, soit environ 10 % de la limite. C'est la raison du choix de `@react-pdf/renderer` : Puppeteer et `@sparticuz/chromium` dépassent à eux seuls la limite. |
-| 1 cron par jour maximum           | Aucun cron. La purge du rate limiter est déclenchée de façon opportuniste depuis les requêtes protégées.                                                                                                                                    |
-| Pas de stockage de fichiers       | Aucun PDF n'est stocké : chaque document est régénéré à la demande, avec un cache mémoire de 60 secondes qui absorbe les rafales.                                                                                                           |
+| Quota                             | Situation                                                                                                                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 100 Go de bande passante par mois | Largement suffisant : une feuille de style unique, un seul script de 2 ko, aucun média lourd, aucun bundle JavaScript.                                                          |
+| 10 s d'exécution par fonction     | `maxDuration: 10` déclaré dans `vercel.json`. Un PDF se rend en quelques dizaines de millisecondes.                                                                            |
+| 250 Mo décompressés par fonction  | Flask, SQLAlchemy, psycopg, ReportLab et segno pèsent **≈ 40 Mo**. C'est la raison du choix de ReportLab : Puppeteer, `@sparticuz/chromium` ou WeasyPrint dépassent la limite. |
+| 1 cron par jour maximum           | Aucun cron. La purge de la limitation de débit est déclenchée de façon opportuniste depuis les requêtes protégées.                                                             |
+| Pas de stockage de fichiers       | Aucun PDF n'est stocké : chaque document est régénéré à la demande, avec un cache mémoire de 60 secondes qui absorbe les rafales.                                              |
 
 ### Neon (offre gratuite)
 
@@ -426,8 +431,9 @@ vigilance, et ce qui a été fait pour les respecter :
   d'octets ; le journal d'audit est la table qui croît le plus vite.
 - **Mise en veille automatique** : la première requête après une période
   d'inactivité prend une à deux secondes.
-- **Connexions** : l'application passe par le driver HTTP `@neondatabase/serverless`,
-  indispensable en serverless — un pool TCP classique épuiserait les connexions.
+- **Connexions** : le moteur SQLAlchemy est configuré avec `NullPool` et
+  `pool_pre_ping`. En serverless, une fonction ne survit pas d'une invocation à
+  l'autre : maintenir un pool TCP épuiserait le quota de connexions de Neon.
 - Purge conseillée du journal d'audit au-delà de deux ans d'exploitation.
 
 ### Resend (offre gratuite)
@@ -441,90 +447,115 @@ vigilance, et ce qui a été fait pour les respecter :
 
 ### Ce qui a été volontairement écarté
 
-Puppeteer, `@sparticuz/chromium`, S3, Docker, Redis, tout service payant, et
-tout cron plus fréquent qu'une exécution quotidienne.
+Puppeteer, `@sparticuz/chromium`, WeasyPrint, S3, Docker, Redis, Celery, tout
+service payant, et tout cron plus fréquent qu'une exécution quotidienne.
 
 ---
 
 ## Architecture du code
 
 ```
-prisma/
-  schema.prisma          modèle de données
-  migrations/            migrations SQL versionnées
-  seed.ts                jeu de démonstration
-src/
-  app/
-    (app)/               écrans authentifiés (tableau de bord, missions, RH, admin)
-    approve/[token]/     page de validation RH — sans connexion
-    reject/[token]/      page de refus RH — sans connexion
-    verify/[numero]/     vérification publique d'authenticité
-    login/               connexion par lien magique
-    api/                 PDF, aperçu, export CSV, Auth.js
-  actions/               Server Actions (missions, décisions, utilisateurs)
-  components/            composants d'interface, primitives shadcn/ui
-  lib/
-    validations/         schémas Zod partagés client/serveur
-    mission/             numérotation, machine à états, jetons, décision, requêtes
-    pdf/                 document @react-pdf/renderer, rendu, cache
-    email/               transport, gabarits React Email, notifications
-    auth.ts, session.ts  authentification et contrôle d'accès
-tests/                   tests unitaires Vitest
-e2e/                     tests de bout en bout Playwright
+api/index.py             point d'entrée serverless (Vercel)
+wsgi.py                  point d'entrée WSGI classique (gunicorn)
+app/
+  __init__.py            fabrique Flask : session par requête, en-têtes, filtres
+  config.py              configuration lue depuis l'environnement
+  db.py                  moteur, sessions, différences de dialecte
+  models.py              modèle SQLAlchemy
+  domaine/               règles métier, sans dépendance à Flask
+    validations.py       validation partagée formulaire / serveur
+    numerotation.py      séquence annuelle OM-AAAA-NNNN
+    statuts.py           machine à états (table de transitions)
+    jetons.py            jetons d'approbation à usage unique
+    decision.py          validation et refus, sous concurrence
+    missions.py          brouillon, soumission, annulation, relance
+    connexion.py         liens magiques
+    requetes.py          lecture filtrée selon le rôle
+    limitation.py        limitation de débit en base
+    audit.py             journal
+    utilisateurs.py      administration et import CSV
+  pdf/                   document ReportLab, projection, cache
+  emails/                transport, gabarits Jinja2, notifications
+  web/                   routes Flask, contrôle d'accès
+  templates/             gabarits Jinja2
+  static/                feuille de style, script d'aperçu, favicon
+migrations/              migrations Alembic
+scripts/                 seed, démonstration, liens, exemples PDF
+tests/                   pytest — unitaires et parcours HTTP
+e2e/                     pytest + Playwright — bout en bout
+docs/                    recette, exemples de PDF
 ```
 
 ### Points d'attention pour la maintenance
 
-- **La validation est partagée** : `lib/validations/mission.ts` est utilisé par
-  le formulaire _et_ par les Server Actions. Un message d'erreur affiché à
-  l'écran est exactement celui que renverrait le serveur.
-- **L'autorisation est toujours vérifiée côté serveur.** Le middleware ne fait
-  qu'un filtrage grossier ; le rôle et le statut « actif » sont relus en base à
-  chaque accès protégé. Masquer un lien n'est jamais une mesure de sécurité.
-- **L'aperçu et le PDF définitif partagent le même composant** : ils ne peuvent
-  pas diverger.
+- **La validation est partagée** : `app/domaine/validations.py` sert au rendu
+  du formulaire _et_ à l'enregistrement. Un message d'erreur affiché à l'écran
+  est exactement celui que produirait le serveur.
+- **Le domaine ne connaît ni Flask ni la requête HTTP.** Chaque opération y
+  renvoie un résultat typé (`Issue`, `Resultat`, `Resolution`) plutôt que de
+  lever : les règles métier se testent sans serveur.
+- **L'autorisation est toujours vérifiée côté serveur**, dans les requêtes
+  elles-mêmes (`app/domaine/requetes.py`) et non dans les gabarits ; le rôle et
+  le statut « actif » sont relus en base à chaque requête. Masquer un lien
+  n'est jamais une mesure de sécurité.
+- **L'aperçu et le PDF définitif partagent le même code de rendu** : ils ne
+  peuvent pas diverger.
 
 ---
 
 ## Décisions de conception
 
-**Numéro provisoire des brouillons.** Le cahier des charges impose
-`numero` non nul et unique, tout en n'attribuant le numéro définitif qu'à la
-soumission. Un brouillon porte donc un numéro provisoire `BROUILLON-…`, remplacé
-par `OM-AAAA-NNNN` lors de la soumission. Ni l'interface ni le PDF n'affichent
+**ReportLab plutôt qu'un rendu HTML.** Le PDF doit être superposable au
+formulaire papier : le positionnement absolu au point près est ici un avantage,
+pas une contrainte. ReportLab est du Python pur, sans bibliothèque système —
+ce que WeasyPrint (Cairo, Pango) et Puppeteer (Chromium) ne permettent pas dans
+une fonction serverless de 250 Mo.
+
+**Numéro provisoire des brouillons.** Le cahier des charges impose `numero` non
+nul et unique, tout en n'attribuant le numéro définitif qu'à la soumission. Un
+brouillon porte donc un numéro provisoire `BROUILLON-…`, remplacé par
+`OM-AAAA-NNNN` lors de la soumission. Ni l'interface ni le PDF n'affichent
 jamais un numéro provisoire : ils indiquent « Brouillon (non numéroté) ».
 
-**Numérotation sous concurrence.** La séquence annuelle est incrémentée par un
-`INSERT … ON CONFLICT DO UPDATE … RETURNING` sur la table `Counter`. Postgres
-verrouille la ligne le temps de la mise à jour — équivalent à un
-`SELECT … FOR UPDATE` suivi d'un `UPDATE`, en un seul aller-retour réseau, ce
-qui compte en serverless. Numéro et passage à `SUBMITTED` sont dans la même
-transaction : aucun numéro n'est consommé par une soumission qui échoue.
+**Numérotation sous concurrence.** La séquence annuelle est portée par la table
+`Counter`, dont la ligne est verrouillée par un `SELECT … FOR UPDATE` sur
+PostgreSQL. Numéro et passage à `SUBMITTED` sont dans la même transaction :
+aucun numéro n'est consommé par une soumission qui échoue. Un test rejoue
+50 soumissions simultanées et vérifie l'absence de collision comme de trou.
+
+**Horodatages toujours conscients du fuseau.** PostgreSQL conserve le fuseau,
+SQLite non. Un `TypeDecorator` (`UtcDateTime`, dans `app/models.py`) normalise
+donc toute date en UTC à l'écriture comme à la lecture : le code métier ne
+manipule jamais de date naïve, quel que soit le moteur.
 
 **Identité du valideur.** Les RH décident depuis leur boîte mail, sans se
 connecter : l'application enregistre alors le service comme valideur
 (« Ressources Humaines — PORTEO GROUP »). Si la personne est malgré tout
-authentifiée — décision prise depuis l'écran `/rh` —, son identité nominative
+authentifiée — décision prise depuis l'écran `/rh/` —, son identité nominative
 est retenue et imprimée sur le PDF.
 
 **Aucun effet de bord sur un GET.** Les scanners d'e-mails préchargent les
-liens : afficher `/approve/{token}` ne consomme donc jamais le jeton. La
-décision passe par une Server Action déclenchée explicitement.
+liens : afficher `/approve/{jeton}` ne consomme donc jamais le jeton. La
+décision passe par un POST explicite, protégé par un jeton CSRF.
 
-**Sessions JWT plutôt qu'en base.** Le middleware reste ainsi compatible avec
-le runtime edge, sans requête à la base à chaque navigation. La contrepartie —
-un jeton qui ne reflète pas un changement de rôle — est neutralisée par la
-relecture systématique du profil en base côté serveur.
+**Décision atomique.** L'enregistrement d'une décision est un
+`UPDATE … WHERE statut = 'SUBMITTED'` dont on vérifie le nombre de lignes
+touchées : deux gestionnaires qui cliquent en même temps ne peuvent pas
+produire deux décisions contradictoires.
 
-**Les brouillons sont visibles des RH.** L'écran `/rh` affiche « tous les OM »,
-conformément à la section 7 du cahier des charges, statut `DRAFT` compris. Si
-la confidentialité des brouillons est souhaitée, le filtre se pose dans
-`whereRH` (`src/lib/mission/queries.ts`) — un seul point à modifier.
+**Seule l'empreinte des jetons est stockée.** Les jetons d'approbation et de
+connexion font 32 octets aléatoires ; la base ne conserve que leur SHA-256.
+Une fuite de la base ne permet donc pas de valider un ordre de mission.
+
+**Les brouillons sont visibles des RH.** L'écran `/rh/` affiche « tous les
+OM », conformément à la section 7 du cahier des charges, statut `DRAFT`
+compris. Si la confidentialité des brouillons est souhaitée, le filtre se pose
+dans `app/domaine/requetes.py` — un seul point à modifier.
 
 **Périmètre v2.** Ni per diem, ni frais de mission, ni validation N+1 ou
 Directeur, ni pointage sécurité. La machine à états
-(`src/lib/mission/status.ts`) est une table de transitions : intercaler une
-étape « Supérieur hiérarchique » entre `SUBMITTED` et `APPROVED` consistera à y
+(`app/domaine/statuts.py`) est une table de transitions : intercaler une étape
+« Supérieur hiérarchique » entre `SUBMITTED` et `APPROVED` consistera à y
 ajouter des lignes, sans toucher aux appelants. Les colonnes de signature du
 PDF sont déjà en place.
 

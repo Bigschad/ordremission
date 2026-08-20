@@ -1,0 +1,26 @@
+{# Récapitulatif d'un ordre de mission, dans l'ordre du formulaire papier. #}
+<dl class="definitions">
+  <div><dt>Numéro</dt><dd>{{ numero_affiche(mission.numero) }}</dd></div>
+  <div><dt>Nom</dt><dd>{{ mission.nom }}</dd></div>
+  <div><dt>Prénoms</dt><dd>{{ mission.prenoms }}</dd></div>
+  <div><dt>Matricule</dt><dd>{{ mission.matricule }}</dd></div>
+  <div><dt>Fonction</dt><dd>{{ mission.fonction }}</dd></div>
+  {% if mission.analytique %}
+    <div><dt>Analytique</dt><dd>{{ mission.analytique }}</dd></div>
+  {% endif %}
+  <div><dt>Objet de la mission</dt><dd>{{ mission.objet }}</dd></div>
+  <div><dt>Lieu de la mission</dt><dd>{{ mission.lieu }}</dd></div>
+  <div><dt>Date de départ</dt><dd>{{ mission.date_depart | datetime }}</dd></div>
+  <div><dt>Date de retour</dt><dd>{{ mission.date_retour | datetime }}</dd></div>
+  <div><dt>Moyen de transport</dt><dd>{{ libelle_transport[mission.transport_type] }}</dd></div>
+  {% if mission.transport_detail %}
+    <div><dt>Détail du transport</dt><dd>{{ mission.transport_detail }}</dd></div>
+  {% endif %}
+  <div>
+    <dt>Carburant</dt>
+    <dd>
+      {% set litres = mission.litres_gasoil | litres %}
+      {{ litres ~ ' litres de gasoil' if litres else 'Sans dotation de gasoil' }}
+    </dd>
+  </div>
+</dl>

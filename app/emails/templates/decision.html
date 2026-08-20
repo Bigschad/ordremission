@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block contenu %}
+  <h1 style="color:#1B2A4A;font-size:19px;font-weight:700;line-height:26px;margin:0 0 12px;">
+    Votre ordre de mission a été {{ etat }}
+  </h1>
+
+  <p style="color:#1F2937;font-size:14px;line-height:22px;margin:0 0 14px;">
+    Bonjour {{ mission.prenoms }},<br />
+    Votre ordre de mission <strong>{{ mission.numero }}</strong>
+    ({{ mission.objet }} — {{ mission.lieu }}) a été <strong>{{ etat }}</strong> par les
+    Ressources Humaines le {{ decide_le }}{% if mission.decide_par_nom %} ({{ mission.decide_par_nom }}){% endif %}.
+  </p>
+
+  {% if not approuve and mission.motif_refus %}
+    <div style="background:#FDF2F2;border:1px solid #B91C1C33;border-left:4px solid #B91C1C;border-radius:6px;margin:0 0 20px;padding:14px 16px;">
+      <p style="color:#B91C1C;font-size:11px;font-weight:700;letter-spacing:0.05em;margin:0 0 6px;text-transform:uppercase;">
+        Motif du refus
+      </p>
+      <p style="color:#1F2937;font-size:14px;line-height:21px;margin:0;">{{ mission.motif_refus }}</p>
+    </div>
+  {% endif %}
+
+  {% if approuve %}
+    <p style="color:#1F2937;font-size:14px;line-height:22px;margin:0 0 14px;">
+      L&rsquo;ordre de mission validé est joint à ce message ({{ nom_piece_jointe }}).
+      Présentez-le au poste de garde lors de votre départ.
+    </p>
+  {% else %}
+    <p style="color:#1F2937;font-size:14px;line-height:22px;margin:0 0 14px;">
+      Vous pouvez créer un nouvel ordre de mission tenant compte de ce motif.
+    </p>
+  {% endif %}
+
+  {% include '_recapitulatif.html' %}
+
+  <p style="margin:0 0 18px;">
+    <a href="{{ url_mission }}"
+       style="background:#1B2A4A;border-radius:6px;color:#FFFFFF;display:inline-block;font-size:15px;font-weight:600;padding:13px 26px;text-decoration:none;">
+      Consulter mon ordre de mission
+    </a>
+  </p>
+{% endblock %}

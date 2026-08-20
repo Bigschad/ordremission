@@ -1,0 +1,44 @@
+[project]
+name = "ordres-mission-porteo"
+version = "1.0.0"
+description = "Dématérialisation des ordres de mission en Côte d'Ivoire — PORTEO GROUP"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle
+  "F",    # pyflakes
+  "I",    # isort
+  "UP",   # pyupgrade
+  "B",    # bugbear
+  "SIM",  # simplifications
+  "RUF",  # règles ruff
+]
+ignore = [
+  "E501",   # longueur gérée par le formateur
+  "RUF001", # apostrophes typographiques françaises dans les chaînes
+  "RUF002",
+  "RUF003",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/web/*", "app/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+ignore_missing_imports = true
+exclude = ["migrations/"]

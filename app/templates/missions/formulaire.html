@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% set edition = mission is not none %}
+{% block titre %}
+  {{ 'Modifier le brouillon' if edition else 'Nouvel ordre de mission' }} — {{ nom_application }}
+{% endblock %}
+
+{% block contenu %}
+  <div class="entete-page">
+    <div>
+      <a class="discret" href="{{ url_for('missions.tableau_de_bord') }}">← Mes ordres de mission</a>
+      <h1 style="margin-top:0.4rem;">
+        {{ 'Modifier le brouillon' if edition else 'Nouvel ordre de mission' }}
+      </h1>
+      <p class="sous-titre">
+        Renseignez votre déplacement : les Ressources Humaines le recevront par e-mail,
+        avec le document à valider en pièce jointe.
+      </p>
+    </div>
+  </div>
+
+  {% if erreur_globale %}
+    <p class="message message--erreur" role="alert">{{ erreur_globale }}</p>
+  {% endif %}
+
+  <div class="avec-apercu">
+    <form
+      id="formulaire-mission"
+      method="post"
+      action="{{ url_for('missions.modifier', mission_id=mission.id) if edition else url_for('missions.creer') }}"
+      novalidate
+      data-apercu="{{ url_for('pdf.apercu') }}"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      {# -- Section 1 : identité, pré-remplie et verrouillée ---------------- #}
+      <section class="carte">
+        <div class="carte__entete">
+          <h2>1. Identité du demandeur</h2>
+          <p class="sous-titre">
+            Ces informations proviennent de votre fiche collaborateur et ne sont pas modifiables
+            ici. Une erreur ? Signalez-la aux Ressources Humaines.
+          </p>
+        </div>
+        <div class="carte__corps grille grille--deux">
+          <div class="champ">
+            <label for="nom">Nom</label>
+            <input id="nom" value="{{ utilisateur.nom }}" readonly disabled />
+          </div>
+          <div class="champ">
+            <label for="prenoms">Prénoms</label>
+            <input id="prenoms" value="{{ utilisateur.prenoms }}" readonly disabled />
+          </div>
+          <div class="champ">
+            <label for="matricule">Matricule</label>
+            <input id="matricule" value="{{ utilisateur.matricule }}" readonly disabled />
+          </div>
+          <div class="champ">
+            <label for="fonction">Fonction</label>
+            <input id="fonction" value="{{ utilisateur.fonction }}" readonly disabled />
+          </div>
+        </div>
+      </section>
+
+      {# -- Section 2 : la mission ------------------------------------------ #}
+      <section class="carte">
+        <div class="carte__entete">
+          <h2>2. La mission</h2>
+          <p class="sous-titre">Objet, lieu et dates du déplacement.</p>
+        </div>
+        <div class="carte__corps">
+          <div class="champ">
+            <label for="objet">Objet de la mission <span class="obligatoire">*</span></label>
+            <textarea id="objet" name="objet" rows="2" required
+              {% if erreurs.objet %}aria-invalid="true" aria-describedby="erreur-objet"{% endif %}
+            >{{ valeurs.objet or '' }}</textarea>
+            {% if erreurs.objet %}
+              <p class="erreur-champ" id="erreur-objet" role="alert">{{ erreurs.objet }}</p>
+            {% else %}
+              <p class="aide">Exemple : visite chantier, réception de travaux, audit fournisseur.</p>
+            {% endif %}
+          </div>
+
+          <div class="grille grille--deux">
+            <div class="champ">
+              <label for="lieu">Lieu de la mission <span class="obligatoire">*</span></label>
+              <input id="lieu" name="lieu" required value="{{ valeurs.lieu or '' }}"
+                {% if erreurs.lieu %}aria-invalid="true"{% endif %} />
+              {% if erreurs.lieu %}<p class="erreur-champ" role="alert">{{ erreurs.lieu }}</p>{% endif %}
+            </div>
+
+            <div class="champ">
+              <label for="analytique">Code analytique</label>
+              <input id="analytique" name="analytique" value="{{ valeurs.analytique or '' }}"
+                {% if erreurs.analytique %}aria-invalid="true"{% endif %} />
+              {% if erreurs.analytique %}
+                <p class="erreur-champ" role="alert">{{ erreurs.analytique }}</p>
+              {% else %}
+                <p class="aide">Facultatif — code d&rsquo;imputation du service.</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="grille grille--deux">
+            <div class="champ">
+              <label for="date_depart">Date et heure de départ <span class="obligatoire">*</span></label>
+              <input id="date_depart" name="date_depart" type="datetime-local" required
+                value="{{ valeurs.date_depart or '' }}"
+                {% if erreurs.date_depart %}aria-invalid="true"{% endif %} />
+              {% if erreurs.date_depart %}
+                <p class="erreur-champ" role="alert">{{ erreurs.date_depart }}</p>
+              {% endif %}
+            </div>
+
+            <div class="champ">
+              <label for="date_retour">Date et heure de retour <span class="obligatoire">*</span></label>
+              <input id="date_retour" name="date_retour" type="datetime-local" required
+                value="{{ valeurs.date_retour or '' }}"
+                {% if erreurs.date_retour %}aria-invalid="true"{% endif %} />
+              {% if erreurs.date_retour %}
+                <p class="erreur-champ" role="alert">{{ erreurs.date_retour }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {# -- Section 3 : le transport ---------------------------------------- #}
+      <section class="carte">
+        <div class="carte__entete">
+          <h2>3. Transport et carburant</h2>
+          <p class="sous-titre">
+            Un seul moyen de transport par ordre de mission, comme sur le formulaire papier.
+          </p>
+        </div>
+        <div class="carte__corps">
+          <fieldset class="groupe">
+            <legend>Moyen de transport <span class="obligatoire">*</span></legend>
+            {% for type, libelle in libelle_transport.items() %}
+              <label class="option" for="transport-{{ type.value }}">
+                <input type="radio" id="transport-{{ type.value }}" name="transport_type"
+                  value="{{ type.value }}"
+                  {% if valeurs.transport_type == type.value %}checked{% endif %} />
+                {{ libelle }}
+              </label>
+            {% endfor %}
+            {% if erreurs.transport_type %}
+              <p class="erreur-champ" role="alert">{{ erreurs.transport_type }}</p>
+            {% endif %}
+          </fieldset>
+
+          <div class="champ">
+            <label for="transport_detail">
+              Détail du transport
+              <span class="aide" style="font-weight:400;">
+                — immatriculation, nom du loueur, ligne ou compagnie
+              </span>
+            </label>
+            <input id="transport_detail" name="transport_detail"
+              value="{{ valeurs.transport_detail or '' }}"
+              {% if erreurs.transport_detail %}aria-invalid="true"{% endif %} />
+            {% if erreurs.transport_detail %}
+              <p class="erreur-champ" role="alert">{{ erreurs.transport_detail }}</p>
+            {% else %}
+              <p class="aide">
+                Obligatoire pour un véhicule personnel (immatriculation)
+                et un véhicule de location (nom du loueur).
+              </p>
+            {% endif %}
+          </div>
+
+          <div class="champ">
+            <label for="litres_gasoil">Quantité de gasoil (litres)</label>
+            <input id="litres_gasoil" name="litres_gasoil" type="number" min="0" max="9999.99"
+              step="0.01" inputmode="decimal" value="{{ valeurs.litres_gasoil or '' }}"
+              {% if erreurs.litres_gasoil %}aria-invalid="true"{% endif %} />
+            {% if erreurs.litres_gasoil %}
+              <p class="erreur-champ" role="alert">{{ erreurs.litres_gasoil }}</p>
+            {% else %}
+              <p class="aide">
+                Facultatif. Aucune dotation n&rsquo;est possible en transport en commun.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+
+      <div class="barre-actions">
+        <button type="submit" name="action" value="brouillon" class="bouton bouton--secondaire">
+          Enregistrer comme brouillon
+        </button>
+        <button type="submit" name="action" value="soumettre" class="bouton">
+          Soumettre aux RH
+        </button>
+      </div>
+    </form>
+
+    {# -- Aperçu du PDF, réservé au bureau -------------------------------- #}
+    <aside class="apercu" aria-label="Aperçu du document">
+      <div class="apercu__entete">
+        Aperçu du document
+        <span class="apercu__etat" id="apercu-etat" role="status">Génération…</span>
+      </div>
+      <iframe id="apercu-cadre" title="Aperçu de l'ordre de mission"></iframe>
+    </aside>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='apercu.js') }}" defer></script>
+{% endblock %}

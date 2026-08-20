@@ -1,0 +1,14 @@
+# Application
+Flask==3.1.0
+Flask-WTF==1.2.2
+WTForms==3.2.1
+Jinja2==3.1.5
+SQLAlchemy==2.0.36
+alembic==1.14.0
+psycopg[binary]==3.2.3
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# PDF et QR code — Python pur, aucune dépendance système
+reportlab==4.2.5
+segno==1.6.1

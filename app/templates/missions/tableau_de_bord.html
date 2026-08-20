@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block titre %}Mes ordres de mission — {{ nom_application }}{% endblock %}
+
+{% block contenu %}
+  {% set total = compteurs.values() | sum %}
+
+  <div class="entete-page">
+    <div>
+      <h1>Mes ordres de mission</h1>
+      <p class="sous-titre">
+        Bonjour {{ utilisateur.prenoms }}, vous avez {{ total }} ordre{{ 's' if total > 1 }} de mission.
+      </p>
+    </div>
+    <a class="bouton" href="{{ url_for('missions.nouveau') }}">+ Nouvel ordre de mission</a>
+  </div>
+
+  <nav aria-label="Filtrer par statut">
+    <ul class="filtres">
+      <li>
+        <a href="{{ url_for('missions.tableau_de_bord') }}"
+           {% if not statut_actif %}aria-current="page"{% endif %}>
+          Tous <span class="compteur">{{ total }}</span>
+        </a>
+      </li>
+      {% for statut in statuts_possibles %}
+        <li>
+          <a href="{{ url_for('missions.tableau_de_bord', statut=statut.value) }}"
+             {% if statut_actif == statut %}aria-current="page"{% endif %}>
+            {{ libelle_statut(statut) }}
+            <span class="compteur">{{ compteurs[statut] }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+
+  {% if not missions %}
+    <div class="etat-vide">
+      <h2>
+        {% if statut_actif %}
+          Aucun ordre de mission « {{ libelle_statut(statut_actif) | lower }} »
+        {% else %}
+          Vous n&rsquo;avez pas encore d&rsquo;ordre de mission
+        {% endif %}
+      </h2>
+      <p>
+        {% if statut_actif %}
+          Changez de filtre pour afficher vos autres ordres de mission.
+        {% else %}
+          Créez votre premier ordre de mission : la saisie prend moins de deux minutes,
+          et les Ressources Humaines le reçoivent immédiatement par e-mail.
+        {% endif %}
+      </p>
+      {% if not statut_actif %}
+        <a class="bouton" href="{{ url_for('missions.nouveau') }}">+ Nouvel ordre de mission</a>
+      {% endif %}
+    </div>
+  {% else %}
+    {% for mission in missions %}
+      <a class="carte carte--lien" href="{{ url_for('missions.detail', mission_id=mission.id) }}">
+        <div class="carte__corps">
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:space-between;align-items:flex-start;">
+            <span class="mono discret">{{ numero_affiche(mission.numero) }}</span>
+            <span class="badge {{ variante_statut(mission.statut) }}">
+              {{ libelle_statut(mission.statut) }}
+            </span>
+          </div>
+
+          <h2 style="margin:0.35rem 0 0.5rem;font-size:1.05rem;">
+            {{ mission.objet or 'Objet non renseigné' }}
+          </h2>
+
+          <p class="discret" style="margin:0;">
+            {{ mission.lieu or 'Lieu non renseigné' }} ·
+            {% if (mission.date_depart | date) == (mission.date_retour | date) %}
+              {{ mission.date_depart | datetime }}
+            {% else %}
+              du {{ mission.date_depart | date }} au {{ mission.date_retour | date }}
+            {% endif %}
+          </p>
+
+          {% if mission.statut.value == 'REJECTED' and mission.motif_refus %}
+            <p class="message message--erreur" style="margin:0.75rem 0 0;font-size:0.85rem;">
+              <strong>Motif du refus :</strong> {{ mission.motif_refus }}
+            </p>
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

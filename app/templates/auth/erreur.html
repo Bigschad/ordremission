@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block titre %}Connexion impossible — {{ nom_application }}{% endblock %}
+{% block classe_conteneur %}conteneur--etroit{% endblock %}
+
+{% block contenu %}
+  {% with titre = 'Connexion impossible' %}
+    {% include 'partiels/entete_public.html' %}
+  {% endwith %}
+
+  <div class="carte">
+    <div class="carte__corps">
+      <p class="message message--erreur" role="alert">{{ message }}</p>
+      <a class="bouton" href="{{ url_for('auth.connexion_formulaire') }}" style="width:100%;">
+        Demander un nouveau lien
+      </a>
+    </div>
+  </div>
+
+  {% include 'partiels/pied_public.html' %}
+{% endblock %}

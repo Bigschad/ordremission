@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block contenu %}
+  <h1 style="color:#1B2A4A;font-size:19px;font-weight:700;line-height:26px;margin:0 0 12px;">
+    Votre lien de connexion
+  </h1>
+
+  <p style="color:#1F2937;font-size:14px;line-height:22px;margin:0 0 14px;">
+    Cliquez sur le bouton ci-dessous pour accéder à votre espace « Ordres de mission ».
+    Aucun mot de passe n&rsquo;est nécessaire.
+  </p>
+
+  <p style="margin:24px 0;">
+    <a href="{{ url }}"
+       style="background:#1B2A4A;border-radius:6px;color:#FFFFFF;display:inline-block;font-size:15px;font-weight:600;padding:13px 28px;text-decoration:none;">
+      Me connecter
+    </a>
+  </p>
+
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0 0 8px;">
+    Ce lien est valable {{ duree_minutes }} minutes et ne peut servir qu&rsquo;une seule fois.
+  </p>
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0 0 8px;">
+    Si vous n&rsquo;êtes pas à l&rsquo;origine de cette demande, ignorez ce message :
+    aucune connexion ne sera établie.
+  </p>
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0;word-break:break-all;">
+    Le bouton ne fonctionne pas ? Copiez cette adresse dans votre navigateur :<br />{{ url }}
+  </p>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block contenu %}
+  <h1 style="color:#1B2A4A;font-size:19px;font-weight:700;line-height:26px;margin:0 0 12px;">
+    {% if relance %}Rappel — ordre de mission en attente{% else %}Nouvel ordre de mission à valider{% endif %}
+  </h1>
+
+  <p style="color:#1F2937;font-size:14px;line-height:22px;margin:0 0 14px;">
+    <strong>{{ mission.prenoms }} {{ mission.nom }}</strong> a soumis un ordre de mission portant le
+    numéro <strong>{{ mission.numero }}</strong>. Le document complet est joint à ce message au
+    format PDF ({{ nom_piece_jointe }}).
+  </p>
+
+  {% include '_recapitulatif.html' %}
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 18px;border-collapse:collapse;">
+    <tr>
+      <td style="width:50%;padding-right:6px;">
+        <a href="{{ url_valider }}"
+           style="background:#1E7A46;border-radius:6px;color:#FFFFFF;display:block;font-size:15px;font-weight:700;padding:13px 10px;text-align:center;text-decoration:none;">
+          Valider
+        </a>
+      </td>
+      <td style="width:50%;padding-left:6px;">
+        <a href="{{ url_refuser }}"
+           style="background:#B91C1C;border-radius:6px;color:#FFFFFF;display:block;font-size:15px;font-weight:700;padding:13px 10px;text-align:center;text-decoration:none;">
+          Refuser
+        </a>
+      </td>
+    </tr>
+  </table>
+
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0 0 8px;">
+    Ces liens sont valables {{ validite_jours }} jours et ne peuvent servir qu&rsquo;une seule fois.
+    Dès qu&rsquo;une décision est prise, les deux liens deviennent sans effet.
+  </p>
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0 0 8px;">
+    Un refus nécessite obligatoirement la saisie d&rsquo;un motif, qui sera communiqué au collaborateur.
+  </p>
+
+  <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0 10px;" />
+
+  <p style="color:#6B7280;font-size:12px;line-height:19px;margin:0;word-break:break-all;">
+    Les boutons ne fonctionnent pas ? Ouvrez l&rsquo;une de ces adresses dans votre navigateur :<br />
+    Valider : {{ url_valider }}<br />
+    Refuser : {{ url_refuser }}
+  </p>
+{% endblock %}

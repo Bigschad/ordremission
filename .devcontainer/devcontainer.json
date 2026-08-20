@@ -1,20 +1,20 @@
 {
   "name": "Ordres de mission — PORTEO GROUP",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
 
-  // Installation des dépendances, base SQLite et jeu de démonstration.
-  // Aucun service externe n'est requis : ni Postgres, ni Resend.
-  "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
-  "updateContentCommand": "pnpm demo:setup",
-  // Le nom du Codespace n'est connu qu'au rattachement : on rafraîchit alors
-  // AUTH_URL et APP_URL, sans toucher aux données déjà saisies.
+  // Aucune infrastructure : base SQLite, e-mails écrits sur disque.
+  // Ni PostgreSQL, ni Resend, ni compte à créer.
+  "onCreateCommand": "pip install --user -r requirements-dev.txt",
+  "updateContentCommand": "python -m scripts.demo --preparer",
+  // Le nom du Codespace n'est connu qu'au rattachement : on réaligne alors
+  // APP_URL, sans toucher aux données déjà saisies.
   "postAttachCommand": {
-    "application": "pnpm demo:env && pnpm dev"
+    "application": "python -m scripts.demo"
   },
 
-  "forwardPorts": [3000],
+  "forwardPorts": [5000],
   "portsAttributes": {
-    "3000": {
+    "5000": {
       "label": "Ordres de mission",
       "onAutoForward": "openPreview"
     }
@@ -22,15 +22,10 @@
 
   "customizations": {
     "vscode": {
-      "extensions": [
-        "Prisma.prisma",
-        "bradlc.vscode-tailwindcss",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
-      ],
+      "extensions": ["ms-python.python", "charliermarsh.ruff", "samuelcolvin.jinjahtml"],
       "settings": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" }
       }
     }
   }

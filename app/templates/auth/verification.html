@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block titre %}Lien envoyé — {{ nom_application }}{% endblock %}
+{% block classe_conteneur %}conteneur--etroit{% endblock %}
+
+{% block contenu %}
+  {% with titre = 'Vérifiez votre boîte mail' %}
+    {% include 'partiels/entete_public.html' %}
+  {% endwith %}
+
+  <div class="carte">
+    <div class="carte__corps">
+      <p>
+        Si l&rsquo;adresse <strong>{{ email }}</strong> correspond à un collaborateur enregistré,
+        un lien de connexion vient de lui être envoyé.
+      </p>
+      <p class="discret">Ce lien est valable 15 minutes et ne peut servir qu&rsquo;une seule fois.</p>
+      <p class="discret" style="margin-bottom:0;">Pensez à consulter vos courriers indésirables.</p>
+    </div>
+  </div>
+
+  {% include 'partiels/pied_public.html' %}
+{% endblock %}

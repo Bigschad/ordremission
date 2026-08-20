@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block titre %}{{ titre }} — {{ nom_application }}{% endblock %}
+{% block classe_conteneur %}conteneur--etroit{% endblock %}
+
+{% block contenu %}
+  <div class="etat-vide">
+    <p style="font-size:2.5rem;font-weight:700;color:var(--marine);margin:0;">{{ code }}</p>
+    <h1>{{ titre }}</h1>
+    <p>{{ message }}</p>
+    <a class="bouton" href="{{ url_for('missions.tableau_de_bord') }}">Retour à l&rsquo;accueil</a>
+  </div>
+{% endblock %}

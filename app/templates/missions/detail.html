@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block titre %}{{ numero_affiche(mission.numero) }} — {{ nom_application }}{% endblock %}
+
+{% block contenu %}
+  <div class="entete-page">
+    <div>
+      <a class="discret" href="{{ url_for('missions.tableau_de_bord') }}">← Mes ordres de mission</a>
+      <h1 style="margin-top:0.4rem;">
+        <span data-testid="numero-mission">{{ numero_affiche(mission.numero) }}</span>
+        <span class="badge {{ variante_statut(mission.statut) }}" style="vertical-align:middle;">
+          {{ libelle_statut(mission.statut) }}
+        </span>
+      </h1>
+      <p class="sous-titre">{{ mission.objet }} — {{ mission.lieu }}</p>
+    </div>
+  </div>
+
+  {% if mission.statut.value == 'REJECTED' and mission.motif_refus %}
+    <div class="message message--erreur">
+      <strong>Ordre de mission refusé</strong>
+      <p style="margin:0.4rem 0 0;">{{ mission.motif_refus }}</p>
+      {% if mission.decide_le %}
+        <p class="discret" style="margin:0.4rem 0 0;color:inherit;">
+          Décision du {{ mission.decide_le | datetime }}
+          {%- if mission.decide_par_nom %} — {{ mission.decide_par_nom }}{% endif %}
+        </p>
+      {% endif %}
+    </div>
+  {% elif mission.statut.value == 'APPROVED' and mission.decide_le %}
+    <div class="message message--succes">
+      <strong>Ordre de mission validé</strong>
+      <p style="margin:0.4rem 0 0;">
+        Validé le {{ mission.decide_le | datetime }}
+        {%- if mission.decide_par_nom %} par {{ mission.decide_par_nom }}{% endif %}.
+        Présentez le PDF au poste de garde lors de votre départ.
+      </p>
+    </div>
+  {% endif %}
+
+  <div class="actions">
+    <a class="bouton bouton--secondaire"
+       href="{{ url_for('pdf.telecharger', mission_id=mission.id) }}"
+       target="_blank" rel="noopener">
+      Télécharger le PDF
+    </a>
+
+    {% if est_demandeur and est_modifiable(mission.statut) %}
+      <a class="bouton bouton--secondaire"
+         href="{{ url_for('missions.modifier_formulaire', mission_id=mission.id) }}">
+        Modifier le brouillon
+      </a>
+    {% endif %}
+
+    {% if est_demandeur and mission.statut.value == 'SUBMITTED' %}
+      <form method="post" action="{{ url_for('missions.relancer', mission_id=mission.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit" class="bouton bouton--secondaire"
+          {% if mission.relances >= relances_max %}disabled
+            title="Limite de {{ relances_max }} renvois atteinte"{% endif %}>
+          Renvoyer aux RH ({{ mission.relances }}/{{ relances_max }})
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if est_demandeur and (est_annulable(mission.statut) or est_modifiable(mission.statut)) %}
+    <div class="carte">
+      <div class="carte__corps">
+        {% if est_annulable(mission.statut) %}
+          <details class="boite">
+            <summary>Annuler cette demande</summary>
+            <p class="discret">
+              L&rsquo;annulation est définitive. Les liens de décision déjà envoyés aux Ressources
+              Humaines deviendront sans effet.
+            </p>
+            <form method="post" action="{{ url_for('missions.annuler', mission_id=mission.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="bouton bouton--refus">Oui, annuler la demande</button>
+            </form>
+          </details>
+        {% endif %}
+
+        {% if est_modifiable(mission.statut) %}
+          <details class="boite" style="margin-top:0.75rem;">
+            <summary>Supprimer ce brouillon</summary>
+            <p class="discret">Le brouillon sera définitivement supprimé. Cette action est irréversible.</p>
+            <form method="post" action="{{ url_for('missions.supprimer', mission_id=mission.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="bouton bouton--refus">Oui, supprimer</button>
+            </form>
+          </details>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <section class="carte">
+    <div class="carte__entete"><h2>Détail de la demande</h2></div>
+    <div class="carte__corps">{% include 'partiels/recapitulatif.html' %}</div>
+  </section>
+
+  <section class="carte">
+    <div class="carte__entete"><h2>Historique des actions</h2></div>
+    <div class="carte__corps">
+      {% if not historique %}
+        <p class="discret" style="margin:0;">Aucune action enregistrée.</p>
+      {% else %}
+        <ol class="historique">
+          {% for entree in historique %}
+            <li>
+              <strong style="font-size:0.92rem;">{{ libelle_action(entree.action) }}</strong>
+              <p class="discret" style="margin:0;">
+                {{ entree.cree_le | datetime }} — {{ entree.acteur }}
+              </p>
+            </li>
+          {% endfor %}
+        </ol>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
