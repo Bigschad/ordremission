@@ -121,9 +121,13 @@ async function deciderViaToken(
 
   await notifierDemandeur(resolution.missionOrderId);
 
-  revalidatePath('/rh');
-  revalidatePath('/');
-
+  /*
+   * Volontairement aucun `revalidatePath` ici : la décision est prise depuis la
+   * page /approve ou /reject, et un rafraîchissement de la route courante
+   * remplacerait la confirmation par le message « lien déjà utilisé ».
+   * Les écrans /rh et / sont rendus dynamiquement à chaque requête : ils
+   * afficheront la décision dès leur prochaine consultation.
+   */
   return succes({ numero: resultat.mission.numero, sens });
 }
 

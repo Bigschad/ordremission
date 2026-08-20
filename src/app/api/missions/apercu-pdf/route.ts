@@ -23,7 +23,17 @@ export async function POST(requete: Request): Promise<NextResponse> {
     return NextResponse.json({ erreur: 'Authentification requise.' }, { status: 401 });
   }
 
-  const donnees = await requete.formData();
+  /*
+   * L'aperçu est temporisé côté client et la requête précédente est annulée
+   * dès que la saisie reprend : le corps peut donc arriver tronqué. On répond
+   * alors sans bruit plutôt que de laisser remonter une erreur serveur.
+   */
+  let donnees: FormData;
+  try {
+    donnees = await requete.formData();
+  } catch {
+    return new NextResponse(null, { status: 499, statusText: 'Aperçu annulé' });
+  }
 
   const analyse = missionBrouillonSchema.safeParse({
     analytique: (donnees.get('analytique') as string | null) ?? undefined,

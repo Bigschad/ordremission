@@ -32,3 +32,5 @@ blob-report
 # PDF d'exemple générés localement
 pdf-exemples
 .mailbox
+/test-results
+/playwright-report

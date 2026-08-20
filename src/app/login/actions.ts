@@ -1,5 +1,6 @@
 'use server';
 
+import { AuthError } from 'next-auth';
 import { z } from 'zod';
 import { signIn } from '@/lib/auth';
 import { logAudit } from '@/lib/audit';
@@ -72,7 +73,33 @@ export async function demanderLienConnexion(
   // On n'accepte qu'un chemin interne : évite une redirection ouverte.
   const redirectTo = suite.startsWith('/') && !suite.startsWith('//') ? suite : '/';
 
-  await signIn('email', { email, redirect: false, redirectTo });
+  try {
+    await signIn('email', { email, redirect: false, redirectTo });
+  } catch (error) {
+    /*
+     * Auth.js lève `AccessDenied` pour une adresse inconnue ou désactivée.
+     * On ne la laisse pas remonter : la réponse doit rester identique à celle
+     * d'une adresse valide, sans quoi l'écran de connexion permettrait
+     * d'énumérer les collaborateurs.
+     */
+    if (!(error instanceof AuthError)) {
+      console.error("Échec d'envoi du lien de connexion", error);
+      return {
+        erreur:
+          "Le service d'authentification est momentanément indisponible. Réessayez dans quelques instants.",
+        email,
+      };
+    }
+
+    await logAudit({
+      entite: 'Auth',
+      entiteId: email,
+      action: 'RATE_LIMITED',
+      acteur: email,
+      ip,
+      details: { raison: error.type },
+    });
+  }
 
   return { email };
 }
