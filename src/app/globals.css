@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+/*
+ * Thème PORTEO GROUP
+ * Bleu marine #1B2A4A (primaire) — Orange #E8A33D (accent)
+ * Tokens exprimés en HSL pour permettre les variations d'opacité Tailwind.
+ */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 220 46% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 220 46% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 46% 12%;
+
+  /* #1B2A4A */
+  --primary: 220 47% 20%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 20% 96%;
+  --secondary-foreground: 220 47% 20%;
+
+  --muted: 220 16% 96%;
+  --muted-foreground: 220 12% 42%;
+
+  /* #E8A33D */
+  --accent: 37 79% 57%;
+  --accent-foreground: 220 47% 15%;
+
+  --destructive: 0 72% 45%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 145 63% 32%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 37 79% 45%;
+  --warning-foreground: 0 0% 100%;
+
+  --border: 220 16% 88%;
+  --input: 220 16% 88%;
+  --ring: 220 47% 30%;
+
+  --radius: 0.6rem;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Cible de saisie ≥ 16px sur mobile : évite le zoom automatique iOS. */
+  @media (max-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+@utility pointilles {
+  border-bottom: 1px dotted hsl(var(--muted-foreground));
+}

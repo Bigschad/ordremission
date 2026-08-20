@@ -1,0 +1,30 @@
+# dépendances
+node_modules
+.pnpm-store
+
+# build
+.next
+out
+build
+dist
+next-env.d.ts
+*.tsbuildinfo
+
+# environnement — aucun secret dans le dépôt
+.env
+.env.*
+!.env.example
+
+# tests
+coverage
+playwright-report
+test-results
+blob-report
+.playwright
+
+# divers
+.DS_Store
+.vercel
+.idea
+.vscode
+*.log
