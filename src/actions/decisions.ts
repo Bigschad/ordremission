@@ -10,6 +10,7 @@ import {
   type Valideur,
 } from '@/lib/mission/decision';
 import { MESSAGES_JETON_INVALIDE, resoudreToken } from '@/lib/mission/tokens';
+import { notifierDecisionAuDemandeur } from '@/lib/email/notifications';
 import { refusSchema } from '@/lib/validations/mission';
 import { getEnv, getHrRecipients } from '@/lib/env';
 import { consommerRateLimit, POLITIQUES } from '@/lib/ratelimit';
@@ -20,6 +21,22 @@ import { echec, succes, type ActionResultat } from './resultat';
 export interface DecisionReussie {
   numero: string;
   sens: SensDecision;
+}
+
+/**
+ * Informe le demandeur de la décision.
+ * Un échec d'envoi est journalisé mais ne remet pas en cause la décision,
+ * qui est déjà enregistrée : le collaborateur la verra sur son tableau de bord.
+ */
+async function notifierDemandeur(missionId: string): Promise<void> {
+  const mission = await prisma.missionOrder.findUnique({
+    where: { id: missionId },
+    include: { demandeur: { select: { email: true } } },
+  });
+
+  if (!mission) return;
+
+  await notifierDecisionAuDemandeur(mission, mission.demandeur.email);
 }
 
 /**
@@ -102,6 +119,8 @@ async function deciderViaToken(
 
   if (!resultat.ok) return echec(resultat.message);
 
+  await notifierDemandeur(resolution.missionOrderId);
+
   revalidatePath('/rh');
   revalidatePath('/');
 
@@ -157,6 +176,8 @@ async function deciderDepuisFile(
   });
 
   if (!resultat.ok) return echec(resultat.message);
+
+  await notifierDemandeur(missionId);
 
   revalidatePath('/rh');
   revalidatePath('/');

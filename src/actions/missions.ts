@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { attribuerNumero, numeroProvisoire } from '@/lib/mission/numero';
 import { appliquerTransition, TransitionInterditeError } from '@/lib/mission/status';
 import { creerTokensApprobation, invaliderTokens } from '@/lib/mission/tokens';
+import { notifierSoumissionAuxRH } from '@/lib/email/notifications';
 import { missionBrouillonSchema, missionSchema } from '@/lib/validations/mission';
 import { getClientIp } from '@/lib/request';
 import { AccesRefuseError, exigerUtilisateurAction } from '@/lib/session';
@@ -249,7 +250,6 @@ export async function soumettreMission(
           status: statutCible,
           submittedAt: maintenant,
         },
-        select: { id: true, numero: true },
       });
 
       const jetons = await creerTokensApprobation(tx, mission.id, maintenant);
@@ -266,7 +266,18 @@ export async function soumettreMission(
       details: { numero: resultat.mission.numero },
     });
 
+    // L'e-mail part après la transaction : un échec d'envoi ne doit pas
+    // annuler la soumission (l'ordre reste SUBMITTED et peut être renvoyé).
+    const envoi = await notifierSoumissionAuxRH(resultat.mission, resultat.jetons);
+
     rafraichir(resultat.mission.id);
+
+    if (!envoi.ok) {
+      return succes(
+        { id: resultat.mission.id, numero: resultat.mission.numero },
+        `Ordre de mission ${resultat.mission.numero} enregistré, mais l'e-mail aux Ressources Humaines n'a pas pu être envoyé. Utilisez « Renvoyer aux RH » depuis le détail de la demande.`,
+      );
+    }
 
     return succes(
       { id: resultat.mission.id, numero: resultat.mission.numero },
@@ -319,6 +330,75 @@ export async function annulerMission(id: string): Promise<ActionResultat<undefin
 
     rafraichir(mission.id);
     return succes(undefined, 'Ordre de mission annulé.');
+  } catch (error) {
+    return gererErreur(error);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Relance
+// ---------------------------------------------------------------------------
+
+/**
+ * Renvoie un ordre de mission aux Ressources Humaines.
+ *
+ * Prévu pour le cas où l'e-mail initial a échoué. De nouveaux jetons sont
+ * émis — ceux du message précédent deviennent caducs — et le nombre de
+ * relances est plafonné à {@link RELANCES_MAX} pour éviter tout usage abusif.
+ */
+export async function renvoyerAuxRH(id: string): Promise<ActionResultat<{ relances: number }>> {
+  try {
+    const utilisateur = await exigerUtilisateurAction();
+
+    const mission = await prisma.missionOrder.findFirst({
+      where: { id, demandeurId: utilisateur.id },
+      select: { id: true, status: true, relances: true, numero: true },
+    });
+
+    if (!mission) return echec('Cet ordre de mission est introuvable.');
+
+    appliquerTransition(mission.status, 'RESUBMIT');
+
+    if (mission.relances >= RELANCES_MAX) {
+      return echec(
+        `Vous avez atteint la limite de ${RELANCES_MAX} renvois. Contactez directement les Ressources Humaines.`,
+      );
+    }
+
+    const maintenant = new Date();
+
+    const { complete, jetons } = await prisma.$transaction(async (tx) => {
+      const misAJour = await tx.missionOrder.update({
+        where: { id: mission.id },
+        data: { relances: { increment: 1 } },
+      });
+      const nouveauxJetons = await creerTokensApprobation(tx, mission.id, maintenant);
+      return { complete: misAJour, jetons: nouveauxJetons };
+    });
+
+    const envoi = await notifierSoumissionAuxRH(complete, jetons, { relance: true });
+
+    await logAudit({
+      entite: 'MissionOrder',
+      entiteId: mission.id,
+      action: 'RESUBMITTED',
+      acteur: utilisateur.email,
+      ip: await getClientIp(),
+      details: { numero: mission.numero, relance: complete.relances, envoye: envoi.ok },
+    });
+
+    rafraichir(mission.id);
+
+    if (!envoi.ok) {
+      return echec(
+        "L'e-mail n'a pas pu être envoyé aux Ressources Humaines. Réessayez dans quelques minutes.",
+      );
+    }
+
+    return succes(
+      { relances: complete.relances },
+      `Ordre de mission renvoyé aux Ressources Humaines (${complete.relances}/${RELANCES_MAX}).`,
+    );
   } catch (error) {
     return gererErreur(error);
   }
