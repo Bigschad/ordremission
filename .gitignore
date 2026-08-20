@@ -39,3 +39,5 @@ blob-report
 prisma/schema.sqlite.prisma
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
