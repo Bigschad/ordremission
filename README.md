@@ -122,23 +122,37 @@ corepack enable
 pnpm install
 
 cp .env.example .env
-# renseigner au minimum DATABASE_URL, DIRECT_URL et AUTH_SECRET
 openssl rand -base64 32          # valeur à placer dans AUTH_SECRET
 
-pnpm db:migrate                  # applique les migrations
+pnpm db:deploy                   # applique les migrations
 pnpm db:seed                     # jeu de données de démonstration
 pnpm dev                         # http://localhost:3000
 ```
 
+Quatre variables suffisent pour un essai en local — Resend n'est pas
+nécessaire :
+
+```dotenv
+DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
+DIRECT_URL="postgresql://postgres@127.0.0.1:5432/ordremission"
+AUTH_SECRET="<sortie de openssl rand -base64 32>"
+EMAIL_TRANSPORT="file"
+```
+
 ### Se connecter en local sans envoyer de vrais e-mails
 
-Ajoutez `EMAIL_TRANSPORT="file"` à votre `.env` : les messages sont alors
-écrits dans `.mailbox/` au lieu d'être envoyés. Le lien de connexion se
-récupère ainsi :
+Avec `EMAIL_TRANSPORT="file"`, les messages sont écrits dans `.mailbox/` au
+lieu d'être envoyés. La commande `pnpm lien` en extrait les liens :
 
 ```bash
-cat .mailbox/*.json | grep -o 'http://localhost:3000/api/auth/callback[^"]*' | tail -1
+pnpm lien              # dernier message : destinataires, objet, pièces jointes, liens
+pnpm lien connexion    # dernier lien de connexion, seul
+pnpm lien approve      # dernier lien de validation RH
+pnpm lien reject       # dernier lien de refus RH
 ```
+
+Le PDF joint n'est pas écrit sur disque par ce transport ; pour l'examiner,
+téléchargez-le depuis l'écran de détail ou lancez `pnpm pdf:exemples`.
 
 Comptes du jeu de démonstration :
 
