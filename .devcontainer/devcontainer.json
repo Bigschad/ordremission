@@ -6,8 +6,10 @@
   // Aucun service externe n'est requis : ni Postgres, ni Resend.
   "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
   "updateContentCommand": "pnpm demo:setup",
+  // Le nom du Codespace n'est connu qu'au rattachement : on rafraîchit alors
+  // AUTH_URL et APP_URL, sans toucher aux données déjà saisies.
   "postAttachCommand": {
-    "application": "pnpm dev"
+    "application": "pnpm demo:env && pnpm dev"
   },
 
   "forwardPorts": [3000],

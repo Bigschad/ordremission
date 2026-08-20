@@ -16,6 +16,12 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const ENV = path.join(process.cwd(), '.env');
+
+/**
+ * Marqueur permettant de reconnaître un `.env` produit par ce script.
+ * Un fichier écrit à la main n'est jamais modifié.
+ */
+const MARQUEUR = 'ORDRE_MISSION_DEMO_ENV';
 const PORT = process.env.PORT ?? '3000';
 
 /** URL publique de l'application, selon l'environnement d'exécution. */
@@ -32,7 +38,7 @@ function urlApplication(): string {
 
 function creerEnv(url: string): void {
   const contenu = [
-    '# Configuration de démonstration — générée par `pnpm demo`.',
+    `# ${MARQUEUR} — configuration de démonstration générée par \`pnpm demo\`.`,
     '# Aucune infrastructure requise : base SQLite locale, e-mails sur disque.',
     '',
     '# Base SQLite. Pour PostgreSQL/Neon, remplacez par la chaîne « pooled »',
@@ -61,7 +67,7 @@ function creerEnv(url: string): void {
 function actualiserUrls(url: string): void {
   const contenu = readFileSync(ENV, 'utf8');
 
-  if (!contenu.includes('généré par `pnpm demo`')) {
+  if (!contenu.includes(MARQUEUR)) {
     console.log('→ .env existant conservé (il n’a pas été généré par `pnpm demo`).');
     return;
   }

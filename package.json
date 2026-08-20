@@ -29,6 +29,7 @@
     "db:sqlite:schema": "tsx --tsconfig tsconfig.scripts.json scripts/schema-sqlite.ts",
     "db:sqlite": "pnpm db:sqlite:schema && prisma generate --schema prisma/schema.sqlite.prisma && prisma db push --schema prisma/schema.sqlite.prisma --skip-generate && tsx --tsconfig tsconfig.scripts.json scripts/sqlite-wal.ts",
     "demo": "tsx --tsconfig tsconfig.scripts.json scripts/preparer-demo.ts && pnpm db:sqlite && pnpm db:seed && pnpm dev",
+    "demo:env": "tsx --tsconfig tsconfig.scripts.json scripts/preparer-demo.ts",
     "lien": "tsx --tsconfig tsconfig.scripts.json scripts/dernier-lien.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
