@@ -28,3 +28,7 @@ blob-report
 .idea
 .vscode
 *.log
+
+# PDF d'exemple générés localement
+pdf-exemples
+.mailbox

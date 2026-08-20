@@ -26,7 +26,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "pdf:exemples": "tsx --tsconfig tsconfig.scripts.json scripts/generer-pdf-exemple.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

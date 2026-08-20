@@ -20,6 +20,12 @@ const eslintConfig = [
     ],
   },
   {
+    // `Image` de @react-pdf/renderer n'est pas une balise HTML : la règle
+    // d'accessibilité `alt-text` ne s'y applique pas.
+    files: ['src/lib/pdf/**/*.tsx'],
+    rules: { 'jsx-a11y/alt-text': 'off' },
+  },
+  {
     rules: {
       // Zéro `any` : règle non négociable du cahier des charges.
       '@typescript-eslint/no-explicit-any': 'error',
