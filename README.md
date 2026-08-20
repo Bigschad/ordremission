@@ -259,13 +259,17 @@ Aucun secret n'est présent dans le code ; `.env*` est exclu du dépôt.
 ### Unitaires — Vitest
 
 ```bash
+cp .env.test.example .env.test          # première fois
+createdb ordremission_test              # base dédiée aux tests
+
 pnpm test
-pnpm test:coverage      # seuil : 80 % sur src/lib
+pnpm test:coverage                      # seuil : 80 % sur src/lib
 ```
 
-Les tests s'appuient sur une base **dédiée** décrite dans `.env.test`
-(`ordremission_test` par défaut) ; les migrations y sont appliquées
-automatiquement avant la campagne.
+Les tests s'appuient sur une base **dédiée** décrite dans `.env.test` ; les
+migrations y sont appliquées automatiquement avant la campagne, et les tables
+métier sont vidées entre les suites. Ne jamais y pointer une base contenant des
+données réelles.
 
 Sont couverts :
 
@@ -283,6 +287,7 @@ Sont couverts :
 ### Bout en bout — Playwright
 
 ```bash
+cp .env.test.example .env.test          # si ce n'est pas déjà fait
 pnpm exec playwright install chromium   # première fois
 pnpm test:e2e
 ```
