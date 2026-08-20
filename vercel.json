@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "pnpm run vercel-build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "regions": ["cdg1"],
+  "functions": {
+    "src/app/api/missions/[id]/pdf/route.ts": { "maxDuration": 10 },
+    "src/app/api/missions/apercu-pdf/route.ts": { "maxDuration": 10 },
+    "src/app/api/rh/export/route.ts": { "maxDuration": 10 },
+    "src/app/api/auth/[...nextauth]/route.ts": { "maxDuration": 10 }
+  }
+}

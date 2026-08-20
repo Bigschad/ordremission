@@ -9,6 +9,9 @@ import { aVueGlobale } from '@/lib/mission/queries';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/** Plafond de l'offre Hobby : 10 s par invocation. */
+export const maxDuration = 10;
+
 /**
  * Téléchargement du PDF d'un ordre de mission.
  *

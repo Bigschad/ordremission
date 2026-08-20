@@ -8,6 +8,9 @@ import { getUtilisateurCourant } from '@/lib/session';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/** Plafond de l'offre Hobby : 10 s par invocation. */
+export const maxDuration = 10;
+
 /**
  * Aperçu du PDF pendant la saisie, sans rien enregistrer.
  *

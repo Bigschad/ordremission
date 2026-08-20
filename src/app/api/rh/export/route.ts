@@ -7,6 +7,9 @@ import { estRH, getUtilisateurCourant } from '@/lib/session';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/** Plafond de l'offre Hobby : 10 s par invocation. */
+export const maxDuration = 10;
+
 /**
  * Export CSV de la file d'attente, avec les mêmes filtres que l'écran.
  * Réservé aux Ressources Humaines et aux administrateurs (règle 9).

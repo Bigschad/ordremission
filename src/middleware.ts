@@ -41,11 +41,11 @@ export default auth((request) => {
 export const config = {
   matcher: [
     /*
-     * Toutes les routes sauf :
-     *  - /api/auth (Auth.js)
-     *  - les fichiers statiques Next.js
-     *  - les fichiers du dossier public
+     * Toutes les pages, à l'exclusion de :
+     *  - /api/* — chaque route d'API vérifie elle-même la session et le rôle,
+     *    et répond 401/403 en JSON plutôt que de rediriger vers une page HTML ;
+     *  - les fichiers statiques Next.js et ceux du dossier public.
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|porteo-logo.png|robots.txt).*)',
+    '/((?!api/|_next/static|_next/image|favicon.ico|porteo-logo.png|robots.txt).*)',
   ],
 };
