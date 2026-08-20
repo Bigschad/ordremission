@@ -90,19 +90,19 @@ export function ApercuPdf({ valeurs }: { valeurs: ValeursApercu }) {
   );
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border bg-background">
-      <div className="flex items-center gap-2 border-b bg-secondary/50 px-4 py-2.5">
-        <FileText className="size-4 text-primary" aria-hidden />
+    <div className="bg-background flex h-full flex-col overflow-hidden rounded-lg border">
+      <div className="bg-secondary/50 flex items-center gap-2 border-b px-4 py-2.5">
+        <FileText className="text-primary size-4" aria-hidden />
         <span className="text-sm font-medium">Aperçu du document</span>
         {enCours ? (
-          <LoaderCircle className="ml-auto size-4 animate-spin text-muted-foreground" aria-hidden />
+          <LoaderCircle className="text-muted-foreground ml-auto size-4 animate-spin" aria-hidden />
         ) : null}
         <span className="sr-only" role="status">
           {enCours ? 'Génération de l’aperçu en cours' : 'Aperçu à jour'}
         </span>
       </div>
 
-      <div className="relative flex-grow bg-muted">
+      <div className="bg-muted relative flex-grow">
         {urlObjet ? (
           <iframe
             src={`${urlObjet}#toolbar=0&navpanes=0&view=FitH`}
@@ -110,14 +110,14 @@ export function ApercuPdf({ valeurs }: { valeurs: ValeursApercu }) {
             className="h-full w-full"
           />
         ) : (
-          <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm">
             {erreur ?? 'Génération de l’aperçu…'}
           </div>
         )}
       </div>
 
       {erreur && urlObjet ? (
-        <p className="border-t bg-destructive/5 px-4 py-2 text-xs text-destructive">{erreur}</p>
+        <p className="bg-destructive/5 text-destructive border-t px-4 py-2 text-xs">{erreur}</p>
       ) : null}
     </div>
   );

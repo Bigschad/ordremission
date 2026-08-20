@@ -89,9 +89,9 @@ describe('liste personnelle', () => {
     await creerMissionTest(second.id, { status: MissionStatus.SUBMITTED });
 
     expect(await listerMesMissions(courant(premier))).toHaveLength(2);
-    expect(
-      await listerMesMissions(courant(premier), { status: MissionStatus.DRAFT }),
-    ).toHaveLength(1);
+    expect(await listerMesMissions(courant(premier), { status: MissionStatus.DRAFT })).toHaveLength(
+      1,
+    );
     expect(await listerMesMissions(courant(second))).toHaveLength(1);
   });
 });
@@ -150,7 +150,9 @@ describe('file d’attente RH', () => {
   it('exporte sans pagination', async () => {
     const utilisateur = await creerUtilisateurTest();
     for (let index = 0; index < 25; index += 1) {
-      await creerMissionTest(utilisateur.id, { numero: `OM-2026-${String(index).padStart(4, '0')}` });
+      await creerMissionTest(utilisateur.id, {
+        numero: `OM-2026-${String(index).padStart(4, '0')}`,
+      });
     }
 
     expect(await listerPourExport({})).toHaveLength(25);

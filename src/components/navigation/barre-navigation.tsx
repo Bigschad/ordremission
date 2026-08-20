@@ -29,7 +29,7 @@ export function BarreNavigation({ utilisateur }: { utilisateur: UtilisateurCoura
   ];
 
   return (
-    <header className="border-b bg-background">
+    <header className="bg-background border-b">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
         <Link href="/" className="shrink-0 rounded-sm" aria-label="Accueil">
           <LogoPorteo />
@@ -39,12 +39,10 @@ export function BarreNavigation({ utilisateur }: { utilisateur: UtilisateurCoura
 
         <div className="ml-auto flex items-center gap-3">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium leading-tight">
+            <p className="text-sm leading-tight font-medium">
               {utilisateur.prenoms} {utilisateur.nom}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Matricule {utilisateur.matricule}
-            </p>
+            <p className="text-muted-foreground text-xs">Matricule {utilisateur.matricule}</p>
           </div>
 
           <form

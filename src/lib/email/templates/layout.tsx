@@ -1,13 +1,4 @@
-import {
-  Body,
-  Container,
-  Head,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from '@react-email/components';
+import { Body, Container, Head, Hr, Html, Preview, Section, Text } from '@react-email/components';
 import type { ReactNode } from 'react';
 
 export const COULEURS = {
@@ -99,12 +90,8 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
               PORTEO GROUP — Abidjan-Marcory, Immeuble Porteo, Boulevard Valery Giscard
               d&apos;Estaing, 08 BP 2212 Abidjan 09
             </Text>
-            <Text style={styles.mentions}>
-              contact@porteo-group.com — +225 27 21 54 03 03
-            </Text>
-            <Text style={styles.mentions}>
-              Message automatique, merci de ne pas y répondre.
-            </Text>
+            <Text style={styles.mentions}>contact@porteo-group.com — +225 27 21 54 03 03</Text>
+            <Text style={styles.mentions}>Message automatique, merci de ne pas y répondre.</Text>
           </Section>
 
           <Section style={styles.bandeau}>WWW.PORTEO-GROUP.COM</Section>

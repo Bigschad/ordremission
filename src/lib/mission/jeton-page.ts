@@ -10,8 +10,7 @@ import { missionSelect, type MissionResume } from '@/lib/mission/queries';
  * validerait des ordres de mission à l'insu des Ressources Humaines.
  */
 export type EtatPageJeton =
-  | { valide: true; mission: MissionResume; token: string }
-  | { valide: false; message: string };
+  { valide: true; mission: MissionResume; token: string } | { valide: false; message: string };
 
 export async function preparerPageJeton(
   token: string,

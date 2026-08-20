@@ -142,7 +142,7 @@ describe('notification aux Ressources Humaines', () => {
       'IT-2026-001',
       'Visite chantier',
       'Assinie',
-      "Véhicule de l&#x27;établissement",
+      'Véhicule de l&#x27;établissement',
       '40 litres de gasoil',
     ]) {
       expect(message?.html, `valeur absente : ${valeur}`).toContain(valeur);

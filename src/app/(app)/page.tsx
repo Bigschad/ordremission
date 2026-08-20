@@ -33,7 +33,7 @@ async function ListeMissions({ statut }: { statut?: MissionStatus }) {
         description={
           statut
             ? 'Changez de filtre pour afficher vos autres ordres de mission.'
-            : "Créez votre premier ordre de mission : la saisie prend moins de deux minutes, et les Ressources Humaines le reçoivent immédiatement par e-mail."
+            : 'Créez votre premier ordre de mission : la saisie prend moins de deux minutes, et les Ressources Humaines le reçoivent immédiatement par e-mail.'
         }
         action={
           statut ? undefined : (
@@ -78,7 +78,7 @@ export default async function PageTableauDeBord({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Mes ordres de mission</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Bonjour {utilisateur.prenoms}, vous avez {total} ordre{total > 1 ? 's' : ''} de mission.
           </p>
         </div>

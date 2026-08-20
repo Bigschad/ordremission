@@ -17,11 +17,7 @@ export const dynamic = 'force-dynamic';
  * action explicite (POST via Server Action), conformément à la consigne
  * « aucune action destructrice sur simple GET ».
  */
-export default async function PageValidation({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+export default async function PageValidation({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const etat = await preparerPageJeton(token, 'APPROVE');
 
@@ -42,7 +38,7 @@ export default async function PageValidation({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CircleCheck className="size-5 text-success" aria-hidden />
+              <CircleCheck className="text-success size-5" aria-hidden />
               Ordre de mission {etat.mission.numero}
             </CardTitle>
             <CardDescription>

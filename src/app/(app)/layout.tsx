@@ -10,10 +10,10 @@ export default async function LayoutApplication({ children }: { children: React.
   const utilisateur = await exigerUtilisateur();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-secondary/30">
+    <div className="bg-secondary/30 flex min-h-dvh flex-col">
       <BarreNavigation utilisateur={utilisateur} />
       <div className="mx-auto w-full max-w-6xl flex-grow px-4 py-6 sm:py-8">{children}</div>
-      <footer className="border-t bg-background py-5 text-center text-xs text-muted-foreground">
+      <footer className="bg-background text-muted-foreground border-t py-5 text-center text-xs">
         PORTEO GROUP — Abidjan-Marcory, Immeuble Porteo, Boulevard Valery Giscard d&apos;Estaing
       </footer>
     </div>

@@ -199,7 +199,7 @@ export async function importerUtilisateursCsv(
       } catch (error) {
         erreurs.push({
           ligne: ligne.ligne,
-          message: messageUnicite(error) ?? "Enregistrement impossible.",
+          message: messageUnicite(error) ?? 'Enregistrement impossible.',
         });
       }
     }

@@ -38,7 +38,9 @@ export function MissionSubmittedHrEmail(props: MissionSubmittedHrProps) {
       preview={`${props.prenoms} ${props.nom} — ${props.objet} à ${props.lieu} (${props.numero})`}
     >
       <Text style={texteStyles.titre}>
-        {props.relance ? 'Rappel — ordre de mission en attente' : 'Nouvel ordre de mission à valider'}
+        {props.relance
+          ? 'Rappel — ordre de mission en attente'
+          : 'Nouvel ordre de mission à valider'}
       </Text>
 
       <Text style={texteStyles.paragraphe}>

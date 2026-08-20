@@ -93,7 +93,7 @@ export function BarreFiltres({ params, demandeurs, compteurs }: Props) {
         <form action={rechercher} className="flex gap-2">
           <div className="relative flex-grow">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
               aria-hidden
             />
             <Label htmlFor="q" className="sr-only">
@@ -120,7 +120,7 @@ export function BarreFiltres({ params, demandeurs, compteurs }: Props) {
               id="demandeur"
               defaultValue={params.demandeur ?? ''}
               onChange={(evenement) => appliquer({ demandeur: evenement.target.value })}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background focus-visible:ring-ring h-10 w-full rounded-md border px-3 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
             >
               <option value="">Tous les demandeurs</option>
               {demandeurs.map((demandeur) => (
@@ -172,7 +172,7 @@ export function BarreFiltres({ params, demandeurs, compteurs }: Props) {
               id="tri"
               defaultValue={params.tri ?? 'recent'}
               onChange={(evenement) => appliquer({ tri: evenement.target.value })}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="border-input bg-background focus-visible:ring-ring h-10 w-full rounded-md border px-3 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
             >
               {TRIS.map((tri) => (
                 <option key={tri.valeur} value={tri.valeur}>

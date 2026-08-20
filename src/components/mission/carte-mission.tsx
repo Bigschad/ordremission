@@ -15,17 +15,17 @@ export function CarteMission({ mission }: { mission: MissionResume }) {
       <CardContent className="p-4">
         <Link href={`/missions/${mission.id}`} className="block rounded-sm">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <p className="font-mono text-xs text-muted-foreground">
+            <p className="text-muted-foreground font-mono text-xs">
               {estNumeroProvisoire(mission.numero) ? 'Brouillon' : mission.numero}
             </p>
             <BadgeStatut statut={mission.status} />
           </div>
 
-          <h3 className="mt-1.5 font-semibold leading-snug">
+          <h3 className="mt-1.5 leading-snug font-semibold">
             {mission.objet || <span className="text-muted-foreground">Objet non renseigné</span>}
           </h3>
 
-          <dl className="mt-2.5 space-y-1.5 text-sm text-muted-foreground">
+          <dl className="text-muted-foreground mt-2.5 space-y-1.5 text-sm">
             <div className="flex items-center gap-2">
               <MapPin className="size-4 shrink-0" aria-hidden />
               <dt className="sr-only">Lieu</dt>
@@ -43,7 +43,7 @@ export function CarteMission({ mission }: { mission: MissionResume }) {
           </dl>
 
           {mission.status === 'REJECTED' && mission.motifRefus ? (
-            <p className="mt-3 line-clamp-2 rounded-md bg-destructive/5 p-2 text-xs text-destructive">
+            <p className="bg-destructive/5 text-destructive mt-3 line-clamp-2 rounded-md p-2 text-xs">
               <span className="font-semibold">Motif du refus : </span>
               {mission.motifRefus}
             </p>

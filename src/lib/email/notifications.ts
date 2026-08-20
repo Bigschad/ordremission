@@ -7,7 +7,12 @@ import { MissionDecisionEmail } from '@/lib/email/templates/mission-decision';
 import { MissionSubmittedHrEmail } from '@/lib/email/templates/mission-submitted-hr';
 import type { LigneRecapitulatif } from '@/lib/email/templates/recapitulatif';
 import { getAppUrl, getHrRecipients } from '@/lib/env';
-import { formaterLitres, nomFichierPdf, rendrePdfAvecCache, type MissionPourPdf } from '@/lib/pdf/render';
+import {
+  formaterLitres,
+  nomFichierPdf,
+  rendrePdfAvecCache,
+  type MissionPourPdf,
+} from '@/lib/pdf/render';
 import { TRANSPORT_LABELS } from '@/lib/validations/mission';
 
 /**

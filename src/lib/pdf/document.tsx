@@ -1,13 +1,4 @@
-import {
-  Document,
-  Image,
-  Page,
-  Path,
-  StyleSheet,
-  Svg,
-  Text,
-  View,
-} from '@react-pdf/renderer';
+import { Document, Image, Page, Path, StyleSheet, Svg, Text, View } from '@react-pdf/renderer';
 import { MissionStatus, type TransportType } from '@prisma/client';
 import { formatDate, formatDateTime, formatTime } from '@/lib/dates';
 import { estNumeroProvisoire } from '@/lib/mission/numero';
@@ -333,7 +324,9 @@ function ColonneRH({ donnees }: { donnees: DonneesPdf }) {
 }
 
 export function OrdreDeMissionPdf({ donnees }: { donnees: DonneesPdf }) {
-  const numeroAffiche = estNumeroProvisoire(donnees.numero) ? 'Brouillon (non numéroté)' : donnees.numero;
+  const numeroAffiche = estNumeroProvisoire(donnees.numero)
+    ? 'Brouillon (non numéroté)'
+    : donnees.numero;
 
   return (
     <Document
@@ -394,9 +387,7 @@ export function OrdreDeMissionPdf({ donnees }: { donnees: DonneesPdf }) {
             <View key={type} style={styles.ligneCase}>
               <View style={styles.case}>{retenu ? <Croix /> : null}</View>
               <Text style={styles.caseLibelle}>{libelle}</Text>
-              <Text style={styles.caseDetail}>
-                {retenu ? (donnees.transportDetail ?? '') : ''}
-              </Text>
+              <Text style={styles.caseDetail}>{retenu ? (donnees.transportDetail ?? '') : ''}</Text>
             </View>
           );
         })}

@@ -32,9 +32,7 @@ export function MissionDecisionEmail(props: MissionDecisionProps) {
 
   return (
     <EmailLayout preview={`Ordre de mission ${props.numero} — ${etat}`}>
-      <Text style={texteStyles.titre}>
-        Votre ordre de mission a été {etat}
-      </Text>
+      <Text style={texteStyles.titre}>Votre ordre de mission a été {etat}</Text>
 
       <Text style={texteStyles.paragraphe}>
         Bonjour {props.prenoms},<br />

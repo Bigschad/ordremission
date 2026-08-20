@@ -27,19 +27,19 @@ export default async function PageErreurConnexion({
     "La connexion n'a pas pu aboutir. Demandez un nouveau lien de connexion.";
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-secondary/40 px-4 py-10">
+    <main className="bg-secondary/40 flex min-h-dvh flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md space-y-8">
         <LogoPorteo className="mx-auto items-center" />
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
+            <CardTitle className="text-destructive flex items-center gap-2">
               <TriangleAlert className="size-5" aria-hidden />
               Connexion impossible
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">{message}</p>
+            <p className="text-muted-foreground text-sm">{message}</p>
             <Button asChild className="w-full">
               <Link href="/login">Demander un nouveau lien</Link>
             </Button>

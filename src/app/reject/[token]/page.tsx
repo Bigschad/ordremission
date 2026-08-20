@@ -36,7 +36,7 @@ export default async function PageRefus({ params }: { params: Promise<{ token: s
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CircleX className="size-5 text-destructive" aria-hidden />
+              <CircleX className="text-destructive size-5" aria-hidden />
               Ordre de mission {etat.mission.numero}
             </CardTitle>
             <CardDescription>

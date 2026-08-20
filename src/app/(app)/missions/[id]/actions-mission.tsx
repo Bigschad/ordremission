@@ -51,7 +51,9 @@ export function ActionsMission({
 
     demarrer(async () => {
       const resultat =
-        action === 'annuler' ? await annulerMission(missionId) : await supprimerBrouillon(missionId);
+        action === 'annuler'
+          ? await annulerMission(missionId)
+          : await supprimerBrouillon(missionId);
 
       setConfirmation(null);
 
@@ -95,7 +97,7 @@ export function ActionsMission({
         >
           {enCours ? <LoaderCircle className="animate-spin" aria-hidden /> : <Send aria-hidden />}
           Renvoyer aux RH
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             ({relances}/{relancesMax})
           </span>
         </Button>
@@ -120,12 +122,15 @@ export function ActionsMission({
         </Button>
       ) : null}
 
-      <Dialog open={confirmation !== null} onOpenChange={(ouvert) => !ouvert && setConfirmation(null)}>
+      <Dialog
+        open={confirmation !== null}
+        onOpenChange={(ouvert) => !ouvert && setConfirmation(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {confirmation === 'annuler'
-                ? "Annuler cet ordre de mission ?"
+                ? 'Annuler cet ordre de mission ?'
                 : 'Supprimer ce brouillon ?'}
             </DialogTitle>
             <DialogDescription>
@@ -141,7 +146,7 @@ export function ActionsMission({
             </Button>
             <Button variant="destructive" onClick={confirmer} disabled={enCours}>
               {enCours ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
-              {confirmation === 'annuler' ? "Oui, annuler" : 'Oui, supprimer'}
+              {confirmation === 'annuler' ? 'Oui, annuler' : 'Oui, supprimer'}
             </Button>
           </DialogFooter>
         </DialogContent>

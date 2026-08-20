@@ -122,7 +122,9 @@ export async function seConnecter(page: Page, email: string): Promise<void> {
     throw new Error("Le lien de connexion n'a pas été envoyé.");
   }
 
-  await page.goto(premierLien(message, /https?:\/\/[^\s"<>]*\/api\/auth\/callback\/email[^\s"<>]*/));
+  await page.goto(
+    premierLien(message, /https?:\/\/[^\s"<>]*\/api\/auth\/callback\/email[^\s"<>]*/),
+  );
   await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 });
 }
 

@@ -6,7 +6,7 @@ export function SqueletteListeMissions({ lignes = 4 }: { lignes?: number }) {
     <div className="space-y-3" aria-busy="true" aria-live="polite">
       <span className="sr-only">Chargement des ordres de mission…</span>
       {Array.from({ length: lignes }, (_, index) => (
-        <div key={index} className="rounded-lg border bg-background p-4">
+        <div key={index} className="bg-background rounded-lg border p-4">
           <div className="flex items-start justify-between gap-2">
             <Skeleton className="h-3 w-24" />
             <Skeleton className="h-5 w-20 rounded-full" />

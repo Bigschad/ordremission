@@ -63,7 +63,7 @@ async function FileMissions({ params }: { params: ParamsRH }) {
             <TableBody>
               {missions.map((mission) => (
                 <TableRow key={mission.id}>
-                  <TableCell className="whitespace-nowrap font-mono text-xs">
+                  <TableCell className="font-mono text-xs whitespace-nowrap">
                     <Link href={`/missions/${mission.id}`} className="hover:underline">
                       {/* Un brouillon n'a pas encore de numéro : le numéro
                           provisoire est un détail d'implémentation. */}
@@ -75,15 +75,15 @@ async function FileMissions({ params }: { params: ParamsRH }) {
                     <p className="font-medium">
                       {mission.prenoms} {mission.nom}
                     </p>
-                    <p className="text-xs text-muted-foreground">Matricule {mission.matricule}</p>
+                    <p className="text-muted-foreground text-xs">Matricule {mission.matricule}</p>
                   </TableCell>
 
                   <TableCell className="min-w-52">
                     <p className="line-clamp-1">{mission.objet}</p>
-                    <p className="text-xs text-muted-foreground">{mission.lieu}</p>
+                    <p className="text-muted-foreground text-xs">{mission.lieu}</p>
                   </TableCell>
 
-                  <TableCell className="whitespace-nowrap text-xs">
+                  <TableCell className="text-xs whitespace-nowrap">
                     <p>{formatDateTime(mission.dateDepart)}</p>
                     <p className="text-muted-foreground">→ {formatDate(mission.dateRetour)}</p>
                   </TableCell>
@@ -114,11 +114,7 @@ async function FileMissions({ params }: { params: ParamsRH }) {
 }
 
 /** File d'attente des Ressources Humaines : vue globale, filtres et décisions. */
-export default async function PageFileRH({
-  searchParams,
-}: {
-  searchParams: Promise<ParamsRH>;
-}) {
+export default async function PageFileRH({ searchParams }: { searchParams: Promise<ParamsRH> }) {
   await exigerRH();
   const params = await searchParams;
 
@@ -138,7 +134,7 @@ export default async function PageFileRH({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">File Ressources Humaines</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {enAttente === 0
               ? 'Aucun ordre de mission en attente de décision.'
               : `${enAttente} ordre${enAttente > 1 ? 's' : ''} de mission en attente de décision.`}

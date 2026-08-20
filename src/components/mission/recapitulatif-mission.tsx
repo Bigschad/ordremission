@@ -23,8 +23,8 @@ export interface MissionRecapitulable {
 
 function Ligne({ libelle, valeur }: { libelle: string; valeur: string }) {
   return (
-    <div className="flex flex-col gap-0.5 border-b border-border py-2.5 last:border-0 sm:flex-row sm:gap-4">
-      <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:w-52 sm:shrink-0">
+    <div className="border-border flex flex-col gap-0.5 border-b py-2.5 last:border-0 sm:flex-row sm:gap-4">
+      <dt className="text-muted-foreground text-xs font-semibold tracking-wide uppercase sm:w-52 sm:shrink-0">
         {libelle}
       </dt>
       <dd className="text-sm">{valeur}</dd>
@@ -40,7 +40,7 @@ export function RecapitulatifMission({ mission }: { mission: MissionRecapitulabl
   const litres = formaterLitres(mission.litresGasoil);
 
   return (
-    <dl className="divide-y divide-border">
+    <dl className="divide-border divide-y">
       <Ligne
         libelle="Numéro"
         valeur={estNumeroProvisoire(mission.numero) ? 'Brouillon (non numéroté)' : mission.numero}

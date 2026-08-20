@@ -19,11 +19,7 @@ import { ActionsMission } from './actions-mission';
 
 export const metadata: Metadata = { title: 'Ordre de mission' };
 
-export default async function PageDetailMission({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PageDetailMission({ params }: { params: Promise<{ id: string }> }) {
   const utilisateur = await exigerUtilisateur();
   const { id } = await params;
 
@@ -41,7 +37,7 @@ export default async function PageDetailMission({
   return (
     <main className="space-y-6">
       <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-3 mb-1">
+        <Button asChild variant="ghost" size="sm" className="mb-1 -ml-3">
           <Link href="/">
             <ChevronLeft aria-hidden />
             Mes ordres de mission
@@ -52,7 +48,7 @@ export default async function PageDetailMission({
           <h1 className="text-2xl font-bold tracking-tight">{numeroteAffiche}</h1>
           <BadgeStatut statut={mission.status} />
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {mission.objet} — {mission.lieu}
         </p>
       </div>
@@ -126,21 +122,24 @@ export default async function PageDetailMission({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <History className="size-5 text-muted-foreground" aria-hidden />
+            <History className="text-muted-foreground size-5" aria-hidden />
             Historique des actions
           </CardTitle>
         </CardHeader>
         <CardContent>
           {historique.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucune action enregistrée.</p>
+            <p className="text-muted-foreground text-sm">Aucune action enregistrée.</p>
           ) : (
             <ol className="space-y-3">
               {historique.map((entree) => (
-                <li key={entree.id} className="flex gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
-                  <div className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-hidden />
+                <li
+                  key={entree.id}
+                  className="border-border flex gap-3 border-b pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="bg-primary mt-1.5 size-2 shrink-0 rounded-full" aria-hidden />
                   <div className="min-w-0">
                     <p className="text-sm font-medium">{auditActionLabel(entree.action)}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDateTime(entree.createdAt)} — {entree.acteur}
                     </p>
                   </div>

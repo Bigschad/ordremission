@@ -88,7 +88,7 @@ export async function appliquerDecision(options: OptionsDecision): Promise<Resul
       return {
         ok: false,
         motif: 'INTROUVABLE',
-        message: "Cet ordre de mission est introuvable.",
+        message: 'Cet ordre de mission est introuvable.',
       };
     }
 

@@ -29,8 +29,8 @@ blob-report
 .vscode
 *.log
 
-# PDF d'exemple générés localement
-pdf-exemples
+# PDF d'exemple générés localement (docs/pdf-exemples est versionné)
+/pdf-exemples
 .mailbox
 /test-results
 /playwright-report

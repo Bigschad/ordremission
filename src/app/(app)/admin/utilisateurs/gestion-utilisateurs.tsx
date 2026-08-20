@@ -77,7 +77,7 @@ function FormulaireUtilisateur({
             aria-invalid={Boolean(erreurs[champ.nom])}
           />
           {erreurs[champ.nom] ? (
-            <p role="alert" className="text-xs font-medium text-destructive">
+            <p role="alert" className="text-destructive text-xs font-medium">
               {erreurs[champ.nom]}
             </p>
           ) : null}
@@ -94,7 +94,7 @@ function FormulaireUtilisateur({
           aria-invalid={Boolean(erreurs.fonction)}
         />
         {erreurs.fonction ? (
-          <p role="alert" className="text-xs font-medium text-destructive">
+          <p role="alert" className="text-destructive text-xs font-medium">
             {erreurs.fonction}
           </p>
         ) : null}
@@ -107,7 +107,7 @@ function FormulaireUtilisateur({
           name="role"
           defaultValue={fiche.role}
           disabled={desactiverRole}
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm disabled:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-input bg-background disabled:bg-muted focus-visible:ring-ring h-10 w-full rounded-md border px-3 text-sm shadow-sm focus-visible:ring-2 focus-visible:outline-none"
         >
           {Object.values(Role).map((role) => (
             <option key={role} value={role}>
@@ -116,7 +116,7 @@ function FormulaireUtilisateur({
           ))}
         </select>
         {desactiverRole ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Vous ne pouvez pas modifier votre propre rôle.
           </p>
         ) : null}
@@ -262,7 +262,10 @@ export function BoutonsUtilisateur({
               : 'Réactiver le compte'
         }
       >
-        <Power aria-hidden className={utilisateur.actif ? 'text-success' : 'text-muted-foreground'} />
+        <Power
+          aria-hidden
+          className={utilisateur.actif ? 'text-success' : 'text-muted-foreground'}
+        />
         <span className="sr-only">{utilisateur.actif ? 'Désactiver' : 'Réactiver'}</span>
       </Button>
 
@@ -347,11 +350,11 @@ export function ImportCsv() {
             </div>
 
             {erreursLignes.length > 0 ? (
-              <div className="max-h-48 space-y-1 overflow-y-auto rounded-md border border-destructive/40 bg-destructive/5 p-3">
-                <p className="text-xs font-semibold text-destructive">
+              <div className="border-destructive/40 bg-destructive/5 max-h-48 space-y-1 overflow-y-auto rounded-md border p-3">
+                <p className="text-destructive text-xs font-semibold">
                   {erreursLignes.length} ligne(s) non importée(s) :
                 </p>
-                <ul className="space-y-0.5 text-xs text-destructive">
+                <ul className="text-destructive space-y-0.5 text-xs">
                   {erreursLignes.map((erreur) => (
                     <li key={erreur.ligne}>
                       Ligne {erreur.ligne} — {erreur.message}

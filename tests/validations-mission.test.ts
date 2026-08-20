@@ -119,7 +119,9 @@ describe('règle 2 — bornes de rétroactivité et d’anticipation', () => {
     );
 
     expect(resultat.success).toBe(false);
-    expect(erreursDe(resultat, 'dateDepart')[0]).toMatch(/ne peut pas précéder de plus de 30 jours/);
+    expect(erreursDe(resultat, 'dateDepart')[0]).toMatch(
+      /ne peut pas précéder de plus de 30 jours/,
+    );
   });
 
   it(`accepte un départ à moins de ${ANTICIPATION_MAX_MOIS} mois dans le futur`, () => {

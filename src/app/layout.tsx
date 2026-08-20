@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className="min-h-dvh bg-background font-sans antialiased">
+      <body className="bg-background min-h-dvh font-sans antialiased">
         {children}
         <Toaster position="top-center" richColors closeButton />
       </body>

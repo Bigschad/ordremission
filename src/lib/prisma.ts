@@ -14,7 +14,8 @@ declare global {
  */
 function createPrismaClient(): PrismaClient {
   const url = process.env.DATABASE_URL ?? '';
-  const log = process.env.NODE_ENV === 'development' ? (['warn', 'error'] as const) : (['error'] as const);
+  const log =
+    process.env.NODE_ENV === 'development' ? (['warn', 'error'] as const) : (['error'] as const);
 
   if (/neon\.(tech|build)/.test(url)) {
     return new PrismaClient({

@@ -104,7 +104,7 @@ const missionBaseSchema = z.object({
   analytique: z
     .string()
     .trim()
-    .max(50, "Le code analytique ne peut pas dépasser 50 caractères")
+    .max(50, 'Le code analytique ne peut pas dépasser 50 caractères')
     .optional()
     .transform((value) => (value && value.length > 0 ? value : null)),
   objet: texteObligatoire('L’objet de la mission', 300),

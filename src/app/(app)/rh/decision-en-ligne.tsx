@@ -110,13 +110,13 @@ export function DecisionEnLigne({ missionId, numero }: Props) {
               onChange={(evenement) => setMotif(evenement.target.value)}
               aria-invalid={Boolean(erreur)}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {restants > 0
                 ? `Encore ${restants} caractère${restants > 1 ? 's' : ''} (minimum ${MOTIF_REFUS_MIN}).`
                 : 'Motif suffisamment détaillé.'}
             </p>
             {erreur ? (
-              <p role="alert" className="text-xs font-medium text-destructive">
+              <p role="alert" className="text-destructive text-xs font-medium">
                 {erreur}
               </p>
             ) : null}

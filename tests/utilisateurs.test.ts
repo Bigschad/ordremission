@@ -1,6 +1,11 @@
 import { Role } from '@prisma/client';
 import { describe, expect, it } from 'vitest';
-import { analyserCsv, COLONNES_CSV, ROLE_LABELS, utilisateurSchema } from '@/lib/validations/utilisateur';
+import {
+  analyserCsv,
+  COLONNES_CSV,
+  ROLE_LABELS,
+  utilisateurSchema,
+} from '@/lib/validations/utilisateur';
 
 describe('validation d’une fiche collaborateur', () => {
   const fiche = {
@@ -65,9 +70,10 @@ describe('import CSV en masse', () => {
 
   it('accepte le point-virgule d’Excel francophone et le BOM', () => {
     const analyse = analyserCsv(
-      ['﻿' + COLONNES_CSV.join(';'), 'YEYE;SCHADRACH;4071;Responsable IT;y@porteo-group.com;EMPLOYEE'].join(
-        '\r\n',
-      ),
+      [
+        '﻿' + COLONNES_CSV.join(';'),
+        'YEYE;SCHADRACH;4071;Responsable IT;y@porteo-group.com;EMPLOYEE',
+      ].join('\r\n'),
     );
 
     expect(analyse.erreurs).toHaveLength(0);
@@ -76,7 +82,9 @@ describe('import CSV en masse', () => {
 
   it('gère les valeurs entre guillemets contenant le séparateur', () => {
     const analyse = analyserCsv(
-      [entete, 'YEYE,SCHADRACH,4071,"Responsable IT, Réseaux",y@porteo-group.com,EMPLOYEE'].join('\n'),
+      [entete, 'YEYE,SCHADRACH,4071,"Responsable IT, Réseaux",y@porteo-group.com,EMPLOYEE'].join(
+        '\n',
+      ),
     );
 
     expect(analyse.valides[0]?.donnees.fonction).toBe('Responsable IT, Réseaux');

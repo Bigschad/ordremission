@@ -40,7 +40,9 @@ export function FormulaireRefus({ token, numero }: Props) {
         <CircleX aria-hidden />
         <AlertTitle>Ordre de mission {numero} refusé</AlertTitle>
         <AlertDescription className="space-y-2">
-          <p>Le collaborateur vient d&apos;être informé par e-mail, motif du refus à l&apos;appui.</p>
+          <p>
+            Le collaborateur vient d&apos;être informé par e-mail, motif du refus à l&apos;appui.
+          </p>
           <p className="text-xs">
             Ce lien est désormais sans effet : il ne peut plus servir à modifier cette décision.
           </p>
@@ -66,7 +68,7 @@ export function FormulaireRefus({ token, numero }: Props) {
           aria-invalid={Boolean(erreur)}
           aria-describedby="aide-motif"
         />
-        <p id="aide-motif" className="text-xs text-muted-foreground">
+        <p id="aide-motif" className="text-muted-foreground text-xs">
           {restants > 0
             ? `Encore ${restants} caractère${restants > 1 ? 's' : ''} avant de pouvoir refuser (minimum ${MOTIF_REFUS_MIN}).`
             : `Motif suffisamment détaillé (minimum ${MOTIF_REFUS_MIN} caractères).`}

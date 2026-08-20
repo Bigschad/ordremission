@@ -43,24 +43,24 @@ export default async function PageVerification({
       {!quota.autorise ? (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-muted-foreground">
+            <CardTitle className="text-muted-foreground flex items-center gap-2">
               <Clock className="size-5" aria-hidden />
               Trop de vérifications
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
+          <CardContent className="text-muted-foreground text-sm">
             Merci de patienter quelques minutes avant de vérifier un nouvel ordre de mission.
           </CardContent>
         </Card>
       ) : !mission ? (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-muted-foreground">
+            <CardTitle className="text-muted-foreground flex items-center gap-2">
               <CircleHelp className="size-5" aria-hidden />
               Ordre de mission inconnu
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
+          <CardContent className="text-muted-foreground space-y-2 text-sm">
             <p>
               Aucun ordre de mission ne porte le numéro{' '}
               <strong className="text-foreground">{decodeURIComponent(numero)}</strong>.
@@ -76,18 +76,18 @@ export default async function PageVerification({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {mission.status === MissionStatus.APPROVED ? (
-                <CircleCheck className="size-5 text-success" aria-hidden />
+                <CircleCheck className="text-success size-5" aria-hidden />
               ) : mission.status === MissionStatus.REJECTED ? (
-                <CircleX className="size-5 text-destructive" aria-hidden />
+                <CircleX className="text-destructive size-5" aria-hidden />
               ) : (
-                <Clock className="size-5 text-warning" aria-hidden />
+                <Clock className="text-warning size-5" aria-hidden />
               )}
               {mission.numero}
             </CardTitle>
           </CardHeader>
 
           <CardContent>
-            <dl className="divide-y divide-border text-sm">
+            <dl className="divide-border divide-y text-sm">
               <div className="flex justify-between gap-4 py-2.5">
                 <dt className="text-muted-foreground">Statut</dt>
                 <dd className="font-semibold">{statusLabel(mission.status)}</dd>
@@ -119,7 +119,7 @@ export default async function PageVerification({
             </dl>
 
             {mission.status !== MissionStatus.APPROVED ? (
-              <p className="mt-4 rounded-md bg-warning/10 p-3 text-xs text-warning">
+              <p className="bg-warning/10 text-warning mt-4 rounded-md p-3 text-xs">
                 Cet ordre de mission n&apos;est pas validé : il ne constitue pas une autorisation de
                 déplacement.
               </p>

@@ -39,11 +39,11 @@ export function FormulaireConnexion({ suite }: { suite: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CheckCircle2 className="size-5 text-success" aria-hidden />
+            <CheckCircle2 className="text-success size-5" aria-hidden />
             Vérifiez votre boîte mail
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
+        <CardContent className="text-muted-foreground space-y-3 text-sm">
           <p>
             Si l&apos;adresse <strong className="text-foreground">{etat.email}</strong> correspond à
             un collaborateur enregistré, un lien de connexion vient de lui être envoyé.

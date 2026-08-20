@@ -31,7 +31,7 @@ export default async function PageModifierBrouillon({
   return (
     <main className="space-y-6">
       <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-3 mb-1">
+        <Button asChild variant="ghost" size="sm" className="mb-1 -ml-3">
           <Link href={`/missions/${mission.id}`}>
             <ChevronLeft aria-hidden />
             Retour au détail

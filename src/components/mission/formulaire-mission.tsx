@@ -95,15 +95,15 @@ function Champ({
       <Label htmlFor={id}>
         {libelle}
         {obligatoire ? (
-          <span className="ml-0.5 text-destructive" aria-hidden>
+          <span className="text-destructive ml-0.5" aria-hidden>
             *
           </span>
         ) : null}
       </Label>
       {children}
-      {aide && !erreur ? <p className="text-xs text-muted-foreground">{aide}</p> : null}
+      {aide && !erreur ? <p className="text-muted-foreground text-xs">{aide}</p> : null}
       {erreur ? (
-        <p id={`${id}-erreur`} role="alert" className="text-xs font-medium text-destructive">
+        <p id={`${id}-erreur`} role="alert" className="text-destructive text-xs font-medium">
           {erreur}
         </p>
       ) : null}
@@ -338,7 +338,7 @@ export function FormulaireMission({ identite, valeursInitiales, missionId }: Pro
             <fieldset>
               <legend className="mb-2 text-sm font-medium">
                 Moyen de transport
-                <span className="ml-0.5 text-destructive" aria-hidden>
+                <span className="text-destructive ml-0.5" aria-hidden>
                   *
                 </span>
               </legend>
@@ -348,7 +348,7 @@ export function FormulaireMission({ identite, valeursInitiales, missionId }: Pro
                   <label
                     key={type}
                     htmlFor={`transport-${type}`}
-                    className="flex cursor-pointer items-center gap-3 rounded-md border border-input px-3 py-2.5 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                    className="border-input has-[:checked]:border-primary has-[:checked]:bg-primary/5 flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors"
                   >
                     <input
                       id={`transport-${type}`}
@@ -363,7 +363,7 @@ export function FormulaireMission({ identite, valeursInitiales, missionId }: Pro
               </div>
 
               {erreurs.transportType ? (
-                <p role="alert" className="mt-1.5 text-xs font-medium text-destructive">
+                <p role="alert" className="text-destructive mt-1.5 text-xs font-medium">
                   {erreurs.transportType.message}
                 </p>
               ) : null}
@@ -419,7 +419,7 @@ export function FormulaireMission({ identite, valeursInitiales, missionId }: Pro
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-0 -mx-4 flex flex-col gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:flex-row sm:justify-end sm:rounded-lg sm:border">
+        <div className="bg-background/95 sticky bottom-0 -mx-4 flex flex-col gap-3 border-t px-4 py-3 backdrop-blur sm:mx-0 sm:flex-row sm:justify-end sm:rounded-lg sm:border">
           <Button
             type="button"
             variant="outline"
@@ -460,7 +460,9 @@ export function FormulaireMission({ identite, valeursInitiales, missionId }: Pro
               transportType: valeurs.transportType ?? '',
               transportDetail: valeurs.transportDetail ?? '',
               litresGasoil:
-                gasoilAutorise && valeurs.litresGasoil !== null && valeurs.litresGasoil !== undefined
+                gasoilAutorise &&
+                valeurs.litresGasoil !== null &&
+                valeurs.litresGasoil !== undefined
                   ? String(valeurs.litresGasoil)
                   : '',
             }}

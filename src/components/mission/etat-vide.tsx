@@ -12,10 +12,10 @@ export function EtatVide({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed bg-background px-6 py-14 text-center">
-      <FileQuestion className="size-9 text-muted-foreground" aria-hidden />
+    <div className="bg-background flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-14 text-center">
+      <FileQuestion className="text-muted-foreground size-9" aria-hidden />
       <h3 className="font-semibold">{titre}</h3>
-      <p className="max-w-md text-sm text-muted-foreground">{description}</p>
+      <p className="text-muted-foreground max-w-md text-sm">{description}</p>
       {action}
     </div>
   );

@@ -14,8 +14,8 @@ export function MagicLinkEmail({ url, dureeMinutes }: MagicLinkEmailProps) {
       <Text style={texteStyles.titre}>Votre lien de connexion</Text>
 
       <Text style={texteStyles.paragraphe}>
-        Cliquez sur le bouton ci-dessous pour accéder à votre espace « Ordres de mission ».
-        Aucun mot de passe n&apos;est nécessaire.
+        Cliquez sur le bouton ci-dessous pour accéder à votre espace « Ordres de mission ». Aucun
+        mot de passe n&apos;est nécessaire.
       </Text>
 
       <Section style={{ margin: '24px 0' }}>

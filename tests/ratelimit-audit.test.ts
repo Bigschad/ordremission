@@ -129,7 +129,12 @@ describe('journal d’audit', () => {
 
   it('n’échoue jamais, même sur une entité inexistante', async () => {
     await expect(
-      logAudit({ entite: 'MissionOrder', entiteId: 'inconnu', action: 'PDF_GENERATED', acteur: 'SYSTEM' }),
+      logAudit({
+        entite: 'MissionOrder',
+        entiteId: 'inconnu',
+        action: 'PDF_GENERATED',
+        acteur: 'SYSTEM',
+      }),
     ).resolves.toBeUndefined();
   });
 

@@ -29,14 +29,14 @@ export default async function PageNouvelOrdre() {
   return (
     <main className="space-y-6">
       <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-3 mb-1">
+        <Button asChild variant="ghost" size="sm" className="mb-1 -ml-3">
           <Link href="/">
             <ChevronLeft aria-hidden />
             Mes ordres de mission
           </Link>
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Nouvel ordre de mission</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           Renseignez votre déplacement : les Ressources Humaines le recevront par e-mail, avec le
           document à valider en pièce jointe.
         </p>

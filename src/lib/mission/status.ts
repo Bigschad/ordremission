@@ -9,13 +9,7 @@ import { MissionStatus } from '@prisma/client';
  */
 
 export type MissionTransition =
-  | 'SUBMIT'
-  | 'RESUBMIT'
-  | 'APPROVE'
-  | 'REJECT'
-  | 'CANCEL'
-  | 'UPDATE'
-  | 'DELETE';
+  'SUBMIT' | 'RESUBMIT' | 'APPROVE' | 'REJECT' | 'CANCEL' | 'UPDATE' | 'DELETE';
 
 interface TransitionRule {
   /** Statuts depuis lesquels la transition est permise. */

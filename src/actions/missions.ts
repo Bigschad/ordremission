@@ -109,7 +109,7 @@ export async function modifierBrouillon(
       select: { id: true, status: true },
     });
 
-    if (!mission) return echec("Cet ordre de mission est introuvable.");
+    if (!mission) return echec('Cet ordre de mission est introuvable.');
 
     appliquerTransition(mission.status, 'UPDATE');
 

@@ -100,11 +100,7 @@ export async function invaliderTokens(
 
 /** Motifs de rejet d'un jeton, chacun avec son message utilisateur. */
 export type MotifJetonInvalide =
-  | 'INTROUVABLE'
-  | 'DEJA_UTILISE'
-  | 'EXPIRE'
-  | 'DECISION_DEJA_PRISE'
-  | 'ORDRE_ANNULE';
+  'INTROUVABLE' | 'DEJA_UTILISE' | 'EXPIRE' | 'DECISION_DEJA_PRISE' | 'ORDRE_ANNULE';
 
 export const MESSAGES_JETON_INVALIDE: Record<MotifJetonInvalide, string> = {
   INTROUVABLE: "Ce lien n'est pas valide. Vérifiez que vous avez copié l'adresse en entier.",

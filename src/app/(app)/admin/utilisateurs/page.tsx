@@ -49,7 +49,7 @@ export default async function PageUtilisateurs() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Collaborateurs</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {utilisateurs.length} fiche{utilisateurs.length > 1 ? 's' : ''}, dont {actifs} active
             {actifs > 1 ? 's' : ''}. Seul un collaborateur enregistré et actif peut se connecter.
           </p>
@@ -78,12 +78,15 @@ export default async function PageUtilisateurs() {
 
             <TableBody>
               {utilisateurs.map((utilisateur) => (
-                <TableRow key={utilisateur.id} className={utilisateur.actif ? undefined : 'opacity-60'}>
+                <TableRow
+                  key={utilisateur.id}
+                  className={utilisateur.actif ? undefined : 'opacity-60'}
+                >
                   <TableCell className="min-w-52">
                     <p className="font-medium">
                       {utilisateur.prenoms} {utilisateur.nom}
                     </p>
-                    <p className="text-xs text-muted-foreground">{utilisateur.email}</p>
+                    <p className="text-muted-foreground text-xs">{utilisateur.email}</p>
                   </TableCell>
 
                   <TableCell className="font-mono text-xs">{utilisateur.matricule}</TableCell>

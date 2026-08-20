@@ -52,13 +52,15 @@ test('1 — un collaborateur se connecte par lien magique', async ({ page }) => 
   const message = await attendreMessage((candidat) => candidat.to.includes(COLLABORATEUR));
   expect(message.subject).toBe('Votre lien de connexion — Ordres de mission Porteo');
 
-  await page.goto(premierLien(message, /https?:\/\/[^\s"<>]*\/api\/auth\/callback\/email[^\s"<>]*/));
+  await page.goto(
+    premierLien(message, /https?:\/\/[^\s"<>]*\/api\/auth\/callback\/email[^\s"<>]*/),
+  );
 
   await expect(page.getByRole('heading', { name: 'Mes ordres de mission' })).toBeVisible();
   await expect(page.getByText('SCHADRACH GUY-ROLAND YEYE')).toBeVisible();
 });
 
-test("1 bis — une adresse inconnue ne révèle rien et ne crée aucun compte", async ({ page }) => {
+test('1 bis — une adresse inconnue ne révèle rien et ne crée aucun compte', async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Adresse e-mail professionnelle').fill('intrus@exemple.com');
   await page.getByRole('button', { name: /Recevoir mon lien de connexion/ }).click();
@@ -77,7 +79,10 @@ test("1 bis — une adresse inconnue ne révèle rien et ne crée aucun compte",
 test('2 — brouillon puis modification puis soumission, avec e-mail aux RH', async ({ page }) => {
   await seConnecter(page, COLLABORATEUR);
 
-  await page.getByRole('link', { name: /Nouvel ordre de mission/ }).first().click();
+  await page
+    .getByRole('link', { name: /Nouvel ordre de mission/ })
+    .first()
+    .click();
   await remplirFormulaire(page, { objet: 'Visite chantier', lieu: 'Assinie' });
 
   await page.getByRole('button', { name: 'Enregistrer comme brouillon' }).click();
@@ -107,9 +112,7 @@ test('2 — brouillon puis modification puis soumission, avec e-mail aux RH', as
   expect(soumis.submittedAt).not.toBeNull();
 
   // -- E-mail reçu par les Ressources Humaines -------------------------------
-  const courriel = await attendreMessage((candidat) =>
-    candidat.to.includes(RESSOURCES_HUMAINES),
-  );
+  const courriel = await attendreMessage((candidat) => candidat.to.includes(RESSOURCES_HUMAINES));
 
   expect(courriel.subject).toContain(`[Ordre de mission ${soumis.numero}]`);
   expect(courriel.subject).toContain('SCHADRACH GUY-ROLAND YEYE');
@@ -125,7 +128,10 @@ test('2 — brouillon puis modification puis soumission, avec e-mail aux RH', as
 // ---------------------------------------------------------------------------
 test('3 — les RH valident depuis leur boîte mail, sans se connecter', async ({ page }) => {
   await seConnecter(page, COLLABORATEUR);
-  await page.getByRole('link', { name: /Nouvel ordre de mission/ }).first().click();
+  await page
+    .getByRole('link', { name: /Nouvel ordre de mission/ })
+    .first()
+    .click();
   await remplirFormulaire(page, { objet: 'Réception de travaux', lieu: 'Yamoussoukro' });
   await page.getByRole('button', { name: 'Soumettre aux RH' }).click();
   await expect(page.getByRole('heading', { name: /^OM-\d{4}-\d{4}$/ })).toBeVisible();
@@ -153,8 +159,7 @@ test('3 — les RH valident depuis leur boîte mail, sans se connecter', async (
 
   // -- Le demandeur est informé, PDF validé à l'appui ------------------------
   const courrielDemandeur = await attendreMessage(
-    (candidat) =>
-      candidat.to.includes(COLLABORATEUR) && candidat.subject.includes(validee.numero),
+    (candidat) => candidat.to.includes(COLLABORATEUR) && candidat.subject.includes(validee.numero),
   );
 
   expect(courrielDemandeur.subject).toBe(`Ordre de mission ${validee.numero} — validé`);
@@ -168,7 +173,10 @@ test('3 — les RH valident depuis leur boîte mail, sans se connecter', async (
 // ---------------------------------------------------------------------------
 test('4 — un refus sans motif est bloqué, un refus motivé aboutit', async ({ page }) => {
   await seConnecter(page, COLLABORATEUR);
-  await page.getByRole('link', { name: /Nouvel ordre de mission/ }).first().click();
+  await page
+    .getByRole('link', { name: /Nouvel ordre de mission/ })
+    .first()
+    .click();
   await remplirFormulaire(page, { objet: 'Salon professionnel', lieu: 'Grand-Bassam' });
   await page.getByRole('button', { name: 'Soumettre aux RH' }).click();
   await expect(page.getByRole('heading', { name: /^OM-\d{4}-\d{4}$/ })).toBeVisible();
@@ -213,7 +221,10 @@ test('4 — un refus sans motif est bloqué, un refus motivé aboutit', async ({
 // ---------------------------------------------------------------------------
 test("5 — un lien déjà utilisé n'a plus aucun effet", async ({ page }) => {
   await seConnecter(page, COLLABORATEUR);
-  await page.getByRole('link', { name: /Nouvel ordre de mission/ }).first().click();
+  await page
+    .getByRole('link', { name: /Nouvel ordre de mission/ })
+    .first()
+    .click();
   await remplirFormulaire(page, { objet: 'Étude géotechnique', lieu: 'Bouaké' });
   await page.getByRole('button', { name: 'Soumettre aux RH' }).click();
   await expect(page.getByRole('heading', { name: /^OM-\d{4}-\d{4}$/ })).toBeVisible();
